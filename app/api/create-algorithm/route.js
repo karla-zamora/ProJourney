@@ -1,74 +1,68 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { createClient } from '@supabase/supabase-js';
+import { initializeApp, cert, getApps } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
+// Parse Firebase Admin SDK service account from environment variable
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_KEY);
 
+// Initialize Firebase Admin SDK only if it hasn't been initialized yet
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
+  });
+}
 
-export async function POST(res){
-    const question = `
-    Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+// Initialize Supabase client with service role key for server-side operations
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    You may assume that each input would have exactly one solution, and you may not use the same element twice.
+export async function POST(req) {
+  try {
+    // Extract the Firebase JWT from the request headers
+    const authorization = req.headers.get('authorization'); // Always use lowercase
 
-    You can return the answer in any order.
-
-    
-
-    Example 1:
-
-    Input: nums = [2,7,11,15], target = 9
-    Output: [0,1]
-    Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
-    Example 2:
-
-    Input: nums = [3,2,4], target = 6
-    Output: [1,2]
-    Example 3:
-
-    Input: nums = [3,3], target = 6
-    Output: [0,1]
-    
-
-    Constraints:
-
-    2 <= nums.length <= 104
-    -109 <= nums[i] <= 109
-    -109 <= target <= 109
-    Only one valid answer exists.
-    `
-    const answer = `
-    function twoSum(nums, target) {
-        const map = new Map();
-        for (let i = 0; i < nums.length; i++) {
-            const complement = target - nums[i];
-            if (map.has(complement)) {
-                return [map.get(complement), i];
-            }
-            map.set(nums[i], i);
-        }
+    if (!authorization) {
+      return NextResponse.json({ message: 'Unauthorized: No authorization header' }, { status: 401 });
     }
-    `
-    const spaceComplexity = 'O(n)'
-    const timeComplexity = 'O(n)'
-    const difficulty = 'Easy'
-    // const tags = ['Array', 'Hash Table']
-    const tags = { Array: true, 'Hash Table': true, 'Linked Lists': false,  'Two Pointers': false }
 
-    const { error } = await supabase.from('Algorithms').insert([
-        {
-            question: question,
-            answer: answer,
-            spaceComplexity:spaceComplexity,
-            difficulty: difficulty,
-            tags: tags,
-            timeComplexity:timeComplexity,
-        },
-    ]);
+    const token = authorization.split(' ')[1]; // Extract the token after 'Bearer '
+    if (!token) {
+      return NextResponse.json({ message: 'Unauthorized: Invalid token format' }, { status: 401 });
+    }
+
+    // Verify the Firebase JWT using Firebase Admin SDK
+    const decodedToken = await getAuth().verifyIdToken(token);
+
+    // Extract the request body containing algorithm data
+    const body = await req.json();
+    const { question, answer, spaceComplexity, timeComplexity, difficulty, tags } = body;
+
+    // Insert the algorithm into the Supabase table with the user's token in the headers
+    const { data, error } = await supabase.from('Algorithms').insert([
+      {
+        question,
+        answer,
+        spaceComplexity,
+        timeComplexity,
+        difficulty,
+        tags,
+      },
+    ], {
+      headers: {
+        Authorization: `Bearer ${token}`, // Pass the token in headers for RLS policies
+      }
+    });
 
     if (error) {
-        console.error('Error inserting algorithm:', error);
-        return NextResponse.json({ message: 'Error inserting algorithm' }, { status: 500 });
+      console.error('Error inserting algorithm: ', error);
+      return NextResponse.json({ error: 'Failed to insert algorithm' }, { status: 500 });
     }
-    return NextResponse.json({ message: 'Algorithm inserted successfully' });
 
-
+    return NextResponse.json({ data, message: 'Algorithm inserted successfully' });
+  } catch (error) {
+    console.error('Error verifying Firebase token or inserting data: ', error);
+    return NextResponse.json({ error: 'Unauthorized or failed to process request' }, { status: 401 });
+  }
 }
