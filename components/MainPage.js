@@ -95,9 +95,6 @@ export default function MainPage({ user, setRedirect, handleGoogleSignIn }) {
                 <div className="w-full p-5 bg-indigo-950 rounded-xl bg-opacity-50">
                     <h1 className="text-4xl p-5 text-cyan-50 bg-cyan-600 bg-opacity-30 rounded-xl">How ProJourney helps you stand out!</h1>
                     <div className="pt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-                        <div className="col-span-1">
-                            <Image src={pro_dsa} className="ring-2 ring-white max-w-full rounded-xl h-auto" />
-                        </div>
                         <div>
                             <ul className="pl-5 text-balance text-amber-50 space-y-5">
                                 <li>
@@ -121,6 +118,9 @@ export default function MainPage({ user, setRedirect, handleGoogleSignIn }) {
                                     </h3>
                                 </li>
                             </ul>
+                        </div>
+                        <div className="col-span-1">
+                            <Image src={pro_dsa} className="ring-2 ring-white max-w-full rounded-xl h-auto" />
                         </div>
                     </div>
                 </div>
