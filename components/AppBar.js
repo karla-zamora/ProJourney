@@ -49,9 +49,9 @@ export default function AppBar({user, setRedirect, handleGoogleSignIn}) {
                         <li>
                             <a href="/services" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Services</a>
                         </li>
-                        <li>
+                        {/* <li>
                             <a href="pricing" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Pricing</a>
-                        </li>
+                        </li> */}
                         <li>
                             <a href="/contact" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Contact</a>
                         </li>
