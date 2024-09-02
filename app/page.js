@@ -1,5 +1,4 @@
 'use client';
-import Image from "next/image";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAuth } from "./context/AuthContext";
 import { auth } from "@/firebase";
