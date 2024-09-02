@@ -1,35 +1,7 @@
-.containerr {
-    height: 100vh;
-    background-color: linear-gradient(135deg, #123456, #654321);; /* Background color for areas outside the bottle */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .main-pg {
-    background: linear-gradient(135deg, #834C69, #3C4F65);
+.main-pg {
+    background: linear-gradient(135deg, #592d68, #8f5364, #1d4765);
     display: flexbox;
   }
   
-  .bottle {
-    max-width: 100vw;
-    height: 100vh;
-    background: linear-gradient(135deg, #834C69, #3C4F65);
-    /* clip-path: polygon(0 10%, 25% 10%, 25% 0, 75% 0, 75% 10%, 100% 10%, 100% 100%, 0 100%); */
-    /* clip-path: polygon(0% 0%, 0% 100%, 5% 100%, 5% 5%, 95% 5%, 95% 95%, 5% 95%, 0 100%, 100% 100%, 100% 0%); */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
   
-  .title {
-    color: white;
-    font-size: 2.5rem;
-    text-align: top;
-    position: absolute;
-    top: 3%;
-  }
   
