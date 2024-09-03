@@ -24,7 +24,7 @@ export async function POST(req) {
     );
   }
 
-  const url = `${judge0ApiUrl}/submissions?base64_encoded=false&wait=false&fields=*`;
+  const url = `${judge0ApiUrl}/submissions?base64_encoded=false&wait=true&fields=*`;
 
   const headers = {
     "Content-Type": "application/json",
@@ -59,9 +59,6 @@ export async function POST(req) {
 
     // Poll for the result using the received token with base64_encoded=true
     const resultUrl = `${judge0ApiUrl}/submissions/${token}?base64_encoded=true&fields=*`;
-
-    // Wait for a brief moment to allow the code execution to complete
-    await new Promise((resolve) => setTimeout(resolve, 3000)); // Increase delay slightly if needed
 
     const resultResponse = await fetch(resultUrl, {
       method: "GET",
