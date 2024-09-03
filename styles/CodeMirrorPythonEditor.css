@@ -1,0 +1,11 @@
+/* styles/globals.css or a specific CSS file for your component */
+.cm-editor {
+    height: 100%;
+    background-color: #282c34;
+    /* Match this color with the One Dark theme */
+}
+
+.cm-scroller {
+    background-color: #282c34;
+    /* Ensures the scroll area matches the theme */
+}
