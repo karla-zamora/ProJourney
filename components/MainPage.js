@@ -4,6 +4,7 @@ import "@/styles/home.css"
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 
 export default function MainPage({ user, setRedirect, handleGoogleSignIn }) {
@@ -57,12 +58,14 @@ export default function MainPage({ user, setRedirect, handleGoogleSignIn }) {
                         </CardContent>
                     </Card>
                 </div>
-                <Button>Get started</Button>
+                <Button asChild>
+                    <Link href="/waitlist">Get started</Link>
+                </Button>
             </div>
 
 
             {/* Images */}
-            <div className="flex flex-col items-center gap-4 w-4/5">
+            <div className="flex flex-col items-center gap-4 lg:w-4/5">
                 <br></br>
                 <div className="w-full p-5 bg-indigo-950 rounded-xl bg-opacity-30">
                     <h1 className="text-4xl p-5 text-amber-50 bg-cyan-600 bg-opacity-30 rounded-xl">Why is current DSA learning inefficient?</h1>
