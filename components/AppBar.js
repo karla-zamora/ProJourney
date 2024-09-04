@@ -55,7 +55,7 @@ export default function AppBar({user, setRedirect, handleGoogleSignIn}) {
                         <li>
                             <a href="/contact" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Contact</a>
                         </li>
-                        <li>
+                        {/* <li>
                             <div className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-rose-600 md:p-0">
                                 {user ?
                                     (
@@ -76,7 +76,7 @@ export default function AppBar({user, setRedirect, handleGoogleSignIn}) {
                                     )
                                 }
                             </div>
-                        </li>
+                        </li> */}
                     </ul>
                 </div>
             </div>
