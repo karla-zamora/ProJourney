@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 
 export default function Home() {
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
-
   
   const handleGoogleSignIn = async (e) => {
     const provider =  new GoogleAuthProvider();
@@ -119,8 +118,7 @@ export default function Home() {
             )
           }
         </div>
-
-      </main>
+        </main>
 
     </div>
   );
