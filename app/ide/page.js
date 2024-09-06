@@ -118,7 +118,7 @@ export default function Page() {
 
   useEffect(() => {
     if (!loading && user) {
-      console.log("User is signed in ");
+      console.log("User is signed in ", user);
     }
     if (!loading && !user) {
       console.log("User is signed out");

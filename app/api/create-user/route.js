@@ -24,6 +24,7 @@ function configureSupabaseClient(token) {
 }
 
 export async function POST(req) {
+  console.log("POST request to /api/create-user");
   try {
     // Extract the Firebase JWT form the request headers
     const authorization = req.headers.get("authorization"); // Always use lowercase
@@ -49,32 +50,35 @@ export async function POST(req) {
     // Configure Supabase client to use the user's JWT for RLS
     configureSupabaseClient(token);
 
-    const { algorithmName } = await req.json(); // Use req.json() to parse body in Next.js API routes
-    console.log("Algorithm Name: ", algorithmName);
-    // Query the Algorithms table to select a single entry based on the algorithm name
-    const { data, error } = await supabase
-      .from("Algorithms")
-      .select("*")
-      .eq("question", algorithmName) // Filter by algorithm name
-      .single(); // Ensure only one result is returned
+    const { uid, email, name, status, customer_id, product_id, variant_id } =
+      await req.json(); // Use req.json() to parse body in Next.js API routes
+
+    // Insert a new user into the Users table
+    const { data, error } = await supabase.from("Users").insert([
+      {
+        id: uid,
+        email,
+        name,
+        status,
+        customer_id,
+        product_id,
+        variant_id,
+      },
+    ]);
 
     if (error) {
-      console.error("Error loading algorithm: ", error);
+      console.error("Error creating user");
       return NextResponse.json(
-        { error: "Error fetching algorithm" },
+        { message: "Error creating user" },
         { status: 500 }
       );
     }
 
-    if (!data) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error loading algorithm: ", error);
+    console.error("Error creating user");
     return NextResponse.json(
-      { error: "Failed to load algorithm" },
+      { message: "Error creating user" },
       { status: 500 }
     );
   }
