@@ -8,6 +8,29 @@
   padding: 0;
 }
 
+.main-pg {
+  background: linear-gradient(115deg, #592d68, #8f5364, #1d4765);
+  display: flexbox;
+}
+
+@keyframes shine {
+  0% {
+    background-position: -200%;
+  }
+  100% {
+    background-position: 200%;
+  }
+}
+
+.shiny-text {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2));
+  background-size: 200%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shine 5s infinite linear;
+}
+
 ::-webkit-scrollbar {
   width: 0.5rem;
 }
@@ -140,3 +163,5 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+

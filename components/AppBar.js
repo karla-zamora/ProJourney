@@ -1,19 +1,25 @@
 'use client'
 import { useState } from 'react';
+import Image from 'next/image'
+import projourney_logo from '@/public/images/projourney.png'
 
-export default function AppBar() {
+export default function AppBar({user, setRedirect, handleGoogleSignIn}) {
     const [isOpen, setIsOpen] = useState(false);
 
+    /**
+     * Toggle the state of the navigation menu. If the menu is open, it will be
+     * closed and vice versa.
+     */
     const toggleMenu = () => {
         setIsOpen(!isOpen);
     };
 
     return (
-        <nav>
+        <nav className='sticky'>
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <div className='flex justify-between place-content-between'>
                     <a id="title" href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                        <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
+                        <Image src={projourney_logo} width={40} className="h-8 shadow-white" alt="ProJourney Logo" />
                         <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">ProJourney</span>
                     </a>
                     <button
@@ -33,20 +39,44 @@ export default function AppBar() {
                 <div className={`${isOpen ? 'block' : 'hidden'} w-full md:block md:w-auto`} id="navbar-default">
                     <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                         <li>
-                            <a href="#" className="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500" aria-current="page">Home</a>
+                            <a href="/" className="block py-2 px-3 text-white bg-transparent sm:hover:bg-black md:hover:bg-transparent rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500" aria-current="page">Home</a>
                         </li>
                         <li>
-                            <a href="#" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">About</a>
+                            <a href="/waitlist" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-rose-600 md:p-0 md:hover:shadow-none bg-violet-600 shadow-violet-500 shadow-lg">
+                            <p className='px-2'>Join our Waitlist!</p>
+                            </a>
                         </li>
                         <li>
-                            <a href="#" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Services</a>
+                            <a href="/services" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Services</a>
                         </li>
+                        {/* <li>
+                            <a href="pricing" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Pricing</a>
+                        </li> */}
                         <li>
-                            <a href="#" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Pricing</a>
+                            <a href="/contact" className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-cyan-600 md:p-0">Contact</a>
                         </li>
-                        <li>
-                            <a href="#" className="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact</a>
-                        </li>
+                        {/* <li>
+                            <div className="block py-2 px-3 text-slate-50 rounded hover:bg-gray-100 sm:hover:bg-black md:hover:bg-transparent md:border-0 md:hover:text-rose-600 md:p-0">
+                                {user ?
+                                    (
+                                        <button
+                                            onClick={() => {
+                                                setRedirect("/dashboard");
+                                            }}
+                                        >
+                                            Dashboard
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={handleGoogleSignIn}
+                                        >
+                                            Sign In with Google
+                                        </button>
+
+                                    )
+                                }
+                            </div>
+                        </li> */}
                     </ul>
                 </div>
             </div>

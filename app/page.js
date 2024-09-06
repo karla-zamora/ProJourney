@@ -1,22 +1,22 @@
 'use client';
-import Image from "next/image";
+
+import "../styles/home.css";
+import MainPage from "@/components/MainPage";
+import AppBar from "@/components/AppBar.js";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "@/app/context/AuthContext";
 import { auth } from "@/firebase";
 import { useEffect } from "react";
-import "../styles/home.css"
-import AppBar from "@/components/AppBar.js"
-import { Button } from '../components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
-
 
 export default function Home() {
+  // Auth
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
-  
+
+
   const handleGoogleSignIn = async (e) => {
-    const provider =  new GoogleAuthProvider();
+    const provider = new GoogleAuthProvider();
     try {
-      
+
       // Set the desired redirect path before succesfully signing in, so when user state is updated, they will be redirected to the correct path
       setRedirect("/dashboard");
       // The AuthContext will automatically update because of the onAuthStateChanged listener
@@ -31,10 +31,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if(!loading && user) {
+    if (!loading && user) {
       console.log("User is signed in: ", user);
     }
-    if(!loading && !user) {
+    if (!loading && !user) {
       console.log("User is signed out");
     }
   }, [loading, user]);
@@ -118,7 +118,8 @@ export default function Home() {
             )
           }
         </div>
-        </main>
+
+      </main>
 
     </div>
   );
