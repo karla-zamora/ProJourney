@@ -1,5 +1,5 @@
 import { FaUserCircle } from 'react-icons/fa'; // Example icon
-import astronaut from '../../../public/astronaught.png'
+import astronaut from '../../../public/images/projourney.png'
 import Image from 'next/image';
 
 const Navbar = () => {
