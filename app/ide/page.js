@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
 import { useState, useEffect } from "react";
@@ -20,6 +20,7 @@ export default function Page() {
   const [difficulty, setDifficulty] = useState("");
   const [tags, setTags] = useState([]);
   const [constraints, setConstraints] = useState([]);
+  const [testCases, setTestCases] = useState([]);
 
   const handleEditorChange = (value) => {
     setCode(value);
@@ -57,12 +58,15 @@ export default function Page() {
       setDifficulty(result.difficulty);
       setConstraints(result.constraints);
       setTags(result.tags);
+      setTestCases(result.testCases);
     } catch (error) {
       console.error("Error loading algorithm: ", error);
     }
   };
 
   const handleRunCode = async () => {
+    console.log("handleRunCode called");
+    console.log(code);
     try {
       const response = await fetch("/api/submission", {
         method: "POST",
@@ -81,6 +85,8 @@ export default function Page() {
 
       const result = await response.json();
       setOutput(result.stdout || result.stderr || "No output");
+      // console.log(result);
+      console.log("Output: \n", result.stdout || result.stderr || "No output");
     } catch (error) {
       console.error("Error running code: ", error);
       setOutput("Error running code");
@@ -130,77 +136,29 @@ export default function Page() {
   return (
     <>
       <div>
-        <Navbar />
+        <Navbar problemName={problemName} />
         <hr className="w-full" />
-        <Workspace /> 
+        <Workspace
+          name={problemName}
+          setName={setProblemName}
+          desc={description}
+          setDesc={setDescription}
+          examples={examples}
+          setExamples={setExamples}
+          output={output}
+          setOutput={setOutput}
+          difficulty={difficulty}
+          setDifficulty={setDifficulty}
+          tags={tags}
+          setTags={setTags}
+          constraints={constraints}
+          setConstraints={setConstraints}
+          code={code}
+          setCode={setCode}
+          testCases={testCases}
+          handleRunCode={handleRunCode}
+        />
       </div>
-      {/* {user ? (
-        <button className="bg-sky-400" onClick={handleSignOut}>
-          Sign Out
-        </button>
-      ) : (
-        <button className="bg-sky-400" onClick={handleGoogleSignIn}>
-          Sign In with Google
-        </button>
-      )}
-      <div className="grid grid-cols-2 gap-25 h-svh p-20">
-        <div className="p-1">
-          <div className="h-1/2 bg-cyan-950 text-white">
-            <h1 className="text-2xl">Problem: Name {problemName}</h1>
-            <p>Description: {description}</p>
-            <p>Examples</p>
-            <ul>
-              {examples.map((example, index) => (
-                <li key={index}>
-                  <p>Input: {example.sampleInput}</p>
-                  <p>Output: {example.sampleOutput}</p>
-                  <p>Explanation: {example.explanation}</p>
-                </li>
-              ))}
-            </ul>
-            <p>Difficulty: {difficulty}</p>
-            <p>Tags: {tags.join(", ")}</p>
-            <p>Constraints</p>
-            <ul>
-              {constraints.map((constraint, index) => (
-                <li key={index}>
-                  <p>{constraint}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="h-1/2">
-            <h1>CodeEditor</h1>
-            <MonacoEditorComponent
-              value={code}
-              language="python"
-              onChange={handleEditorChange}
-            />
-            <button
-              className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-full"
-              onClick={handleRunCode}
-            >
-              Run
-            </button>
-          </div>
-        </div>
-        <div className="p-1">
-          <div className="h-1/2 bg-cyan-950 text-white">
-            <h1 className="text-2xl">Output</h1>
-            <pre className="overflow-auto h-full">{output}</pre>
-          </div>
-          <div className="h-1/2">
-            <h1>Test Cases</h1>
-            <div className="bg-cyan-950 text-white">
-              <p>Test Case 1</p>
-              <p>Test Case 2</p>
-              <p>Test Case 3</p>
-              <p>Test Case 4</p>
-              <p>Test Case 5</p>
-            </div>
-          </div>
-        </div>
-      </div> */}
     </>
   );
 }
