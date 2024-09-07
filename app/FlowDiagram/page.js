@@ -3,6 +3,10 @@
 "use client";
 
 import React, { useEffect } from "react";
+import AppBar from "@/components/AppBar.js";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useAuth } from "@/app/context/AuthContext";
+import { auth } from "@/firebase";
 import { ReactFlow, useReactFlow } from "reactflow"; // Correct imports from reactflow
 import "reactflow/dist/style.css"; // Correct style import for reactflow
 import {
@@ -156,7 +160,7 @@ function FlowDiagram() {
   };
 
   return (
-    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-hidden min-h-[300px] ">
+    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto min-h-[300px] ">
       <CardHeader className="p-4">
         <CardTitle className="text-2xl">Learning Path</CardTitle>
       </CardHeader>
@@ -206,63 +210,101 @@ function StrengthsAndImprovements() {
 }
 
 export default function Page() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
-      <h1 className="text-3xl font-bold mb-4 text-white">
-        Algorithm Learning Dashboard
-      </h1>
-      <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] gap-4">
-        {/* Left side: FlowDiagram */}
-        <FlowDiagram />
+  // Auth
+  const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
 
-        {/* Right side: Strengths and Improvements, Overall Performance, Daily Algorithms */}
-        <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">
-          <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
-          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
-            <CardHeader className="p-4">
-              <CardTitle className="text-xl">Overall Performance</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-4rem)]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={performanceData}>
-                  <PolarGrid stroke="#444" />
-                  <PolarAngleAxis dataKey="subject" stroke="#E0E7FF" />
-                  <PolarRadiusAxis stroke="#E0E7FF" />
-                  <Radar
-                    name="Performance"
-                    dataKey="A"
-                    stroke="#6366F1"
-                    fill="#6366F1"
-                    fillOpacity={0.6}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
-            <CardHeader className="p-4">
-              <CardTitle className="text-xl">
-                Daily Algorithms Completed
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-6rem)]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-                  <XAxis dataKey="day" stroke="#E0E7FF" />
-                  <YAxis stroke="#E0E7FF" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#1E293B",
-                      border: "none",
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="algorithms" fill="#6366F1" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+  const handleGoogleSignIn = async (e) => {
+    const provider = new GoogleAuthProvider();
+    try {
+      // Set the desired redirect path before succesfully signing in, so when user state is updated, they will be redirected to the correct path
+      setRedirect("/dashboard");
+      // The AuthContext will automatically update because of the onAuthStateChanged listener
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Error during sign-in: ", error);
+      // Optionally, handle errors such as showing an error message to the user
+      // reset the redirect path to default path if the sign-in fails
+      setRedirect(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!loading && user) {
+      console.log("User is signed in: ", user);
+    }
+    if (!loading && !user) {
+      console.log("User is signed out");
+    }
+  }, [loading, user]);
+
+  return (
+    <div className="flex flex-col  min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
+      <AppBar
+        user={user}
+        setRedirect={setRedirect}
+        handleGoogleSignIn={handleGoogleSignIn}
+      />
+      <div className="flex flex-col p-5">
+        <h1 className="text-3xl font-bold mb-4 text-white w-full text-center">
+          Algorithm Learning Dashboard
+        </h1>
+        <div className="flex flex-col md:flex-row h-[calc(100vh-10.5rem)] gap-4">
+          {/* Left side: FlowDiagram */}
+          <FlowDiagram />
+
+          {/* Right side: Strengths and Improvements, Overall Performance, Daily Algorithms */}
+          <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">
+            <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
+            <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
+              <CardHeader className="p-4">
+                <CardTitle className="text-xl">Overall Performance</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 h-[calc(100%-4rem)]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={performanceData}>
+                    <PolarGrid stroke="#444" />
+                    <PolarAngleAxis dataKey="subject" stroke="#E0E7FF" />
+                    {/* <PolarRadiusAxis stroke="#E0E7FF" /> */}
+                    <Radar
+                      name="Performance"
+                      dataKey="A"
+                      stroke="#6366F1"
+                      fill="#6366F1"
+                      fillOpacity={0.6}
+                      dot={{
+                        r: 4,
+                        fillOpacity: 1,
+                      }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
+              <CardHeader className="p-4">
+                <CardTitle className="text-xl">
+                  Daily Algorithms Completed
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 h-[calc(100%-6rem)]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={dailyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+                    <XAxis dataKey="day" stroke="#E0E7FF" />
+                    <YAxis stroke="#E0E7FF" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#1E293B",
+                        border: "none",
+                      }}
+                    />
+                    <Legend />
+                    <Bar dataKey="algorithms" fill="#6366F1" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
