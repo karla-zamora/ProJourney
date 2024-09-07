@@ -158,7 +158,7 @@ function FlowDiagram() {
   return (
     <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-hidden min-h-[300px] ">
       <CardHeader className="p-4">
-        <CardTitle>Learning Path</CardTitle>
+        <CardTitle className="text-2xl">Learning Path</CardTitle>
       </CardHeader>
       <CardContent className="p-0 h-[calc(100%-4rem)]">
         <ReactFlow
@@ -177,9 +177,11 @@ function StrengthsAndImprovements() {
   return (
     <Card className="flex-1 bg-gray-900 text-white overflow-scroll min-h-[200px]">
       <CardHeader className="p-4">
-        <CardTitle>Strengths and Areas for Growth</CardTitle>
+        <CardTitle className="text-xl">
+          Strengths and Areas for Growth
+        </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-row p-4">
+      <CardContent className="flex flex-row p-x-4">
         <div>
           <h3 className="text-lg font-semibold mb-2">Strengths</h3>
           <ul className="list-disc pl-5 space-y-1">
@@ -218,7 +220,7 @@ export default function Page() {
           <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
           <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
             <CardHeader className="p-4">
-              <CardTitle>Overall Performance</CardTitle>
+              <CardTitle className="text-xl">Overall Performance</CardTitle>
             </CardHeader>
             <CardContent className="p-0 h-[calc(100%-4rem)]">
               <ResponsiveContainer width="100%" height="100%">
@@ -239,9 +241,11 @@ export default function Page() {
           </Card>
           <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
             <CardHeader className="p-4">
-              <CardTitle>Daily Algorithms Completed</CardTitle>
+              <CardTitle className="text-xl">
+                Daily Algorithms Completed
+              </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-4rem)]">
+            <CardContent className="p-0 h-[calc(100%-6rem)]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dailyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#444" />
