@@ -2,7 +2,7 @@ import { FaUserCircle } from 'react-icons/fa'; // Example icon
 import astronaut from '../../../public/images/projourney.png'
 import Image from 'next/image';
 
-const Navbar = () => {
+const Navbar = ({problemName}) => {
   return (
     <nav className="bg-dark-layer-2 h-14 w-full flex items-center justify-between px-5">
       {/* Left: Logo */}
@@ -15,7 +15,7 @@ const Navbar = () => {
 
       {/* Middle: Text */}
       <div className="flex-1 text-center">
-        <span className="text-white font-medium text-lg">Problem Name</span>
+        <span className="text-white font-medium text-lg">{problemName}</span>
       </div>
 
       {/* Right: Icon */}

@@ -8,8 +8,8 @@ const Dropdown = ({setLanguage}) => {
                     className="bg-dark-layer-1 rounded-t-[5px] px-5 py-[10px] text-xs cursor-pointer"
                     onChange={(e) => setLanguage(e.target.value)}
                 >
-                    <option value="javascript">JavaScript</option>
                     <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
                     <option value="java">Java</option>
                     <option value="csharp">C#</option>
                     <option value="ruby">Ruby</option>

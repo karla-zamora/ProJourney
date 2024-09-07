@@ -62,11 +62,15 @@ const atomMaterialTheme = {
 };
 
 export default function MonacoEditorComponent({
-  value,
+  code,
+  setCode,
   theme,
   onChange,
+  testCases,
+  handleRunCode,
 }) {
-  const [language, setLanguage] = useState('javascript')
+  const [language, setLanguage] = useState('python');
+  const [selectedTestCase, setSelectedTestCase] = useState(0); // Default to first test case
 
   useEffect(() => {
     loader.init().then((monaco) => {
@@ -74,24 +78,29 @@ export default function MonacoEditorComponent({
     });
   }, []);
 
+  const handleTestCaseClick = (index) => {
+    setSelectedTestCase(index); // Set selected test case
+  };
+
   return (
-      <div className='flex flex-col bg-dark-layer-1 relative overflow-x-hidden overflow-y-hidden'>
-        <Dropdown setLanguage={setLanguage}/>
-        <Split className="h-[calc(100vh-100px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
-          <div className="w-full overflow-auto">
-            <Editor
-              height="90vh"
-              defaultLanguage={language}
-              defaultValue={value}
-              theme="atom-material" // Use 'panda' as the theme
-              onChange={onChange}
-              options={{
-                minimap: { enabled: false },
-                automaticLayout: true,
-              }}
-            />
-          </div>
-          <div className="w-full px-5 overflow-auto">
+    <div className='flex flex-col bg-dark-layer-1 relative overflow-x-hidden overflow-y-hidden'>
+      <Dropdown setLanguage={setLanguage} />
+      <Split className="h-[calc(100vh-100px)]" direction="vertical" sizes={[60, 40]} minSize={60}>
+        <div className="w-full overflow-auto">
+          <Editor
+            height="90vh"
+            defaultLanguage={language}
+            value={code}
+            theme="atom-material"
+            onChange={(e) => setCode(e)}
+            options={{
+              minimap: { enabled: false },
+              automaticLayout: true,
+            }}
+          />
+        </div>
+        <div className="w-full px-5 overflow-auto">
+          <div className="flex flex-col">
             <div className="flex h-10 items-center space-x-6">
               <div className="relative flex h-full flex-col justify-center cursor-pointer">
                 <div className="text-sm font-medium leading-5 text-white">Testcases</div>
@@ -99,46 +108,43 @@ export default function MonacoEditorComponent({
               </div>
             </div>
 
-            <div className="flex">
-              <div className="mr-2 items-start mt-2 text-white">
-                <div className="flex flex-wrap items-center gap-y-4">
-                  <div className="font-medium items-center transition-all focus:outline-none inline-flex bg-dark-fill-3 hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap">
-                    Case 1
-                  </div>
-                </div>
-              </div>
-
-              <div className="mr-2 items-start mt-2 text-white">
-                <div className="flex flex-wrap items-center gap-y-4">
-                  <div className="font-medium items-center transition-all focus:outline-none inline-flex bg-dark-fill-3 hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap">
-                    Case 2
-                  </div>
-                </div>
-              </div>
-
-              <div className="mr-2 items-start mt-2 text-white">
-                <div className="flex flex-wrap items-center gap-y-4">
-                  <div className="font-medium items-center transition-all focus:outline-none inline-flex bg-dark-fill-3 hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap">
-                    Case 3
-                  </div>
-                </div>
-              </div>
+            {/* Render test case buttons like a navbar */}
+            <div className="flex gap-4 mt-2 mb-4 overflow-x-auto">
+              {testCases.map((_, index) => (
+                <button
+                  key={index}
+                  className={`font-medium transition-all focus:outline-none inline-flex hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap ${
+                    selectedTestCase === index ? 'bg-dark-fill-1 text-white' : 'bg-dark-fill-2 text-gray-300'
+                  }`}
+                  onClick={() => handleTestCaseClick(index)}
+                  style={{
+                    backgroundColor: selectedTestCase === index ? '#4a4b4d' : '#5a5b5c', // Both shades lighter
+                    color: selectedTestCase === index ? '#f0f0f0' : '#dcdcdc',
+                  }}
+                >
+                  Case {index + 1}
+                </button>
+              ))}
             </div>
 
-            <div className="font-semibold my-4">
-              <p className="text-sm font-medium mt-4 text-white">Input:</p>
-              <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
-                nums: [2, 7, 11, 15], target: 9
+            {/* Display selected test case details */}
+            {testCases[selectedTestCase] && (
+              <div className="font-semibold mt-4">
+                <p className="text-sm font-medium mt-4 text-white">Input:</p>
+                <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
+                  {JSON.stringify(testCases[selectedTestCase].input, null, 2)}
+                </div>
+                <p className="text-sm font-medium mt-4 text-white">Expected Output:</p>
+                <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
+                  {JSON.stringify(testCases[selectedTestCase].expectedOutput)}
+                </div>
               </div>
-              <p className="text-sm font-medium mt-4 text-white">Output:</p>
-              <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
-                [0,1]
-              </div>
-            </div>
+            )}
           </div>
-        </Split>
+        </div>
+      </Split>
 
-        <EditorFooter />
-      </div>
-    );
+      <EditorFooter handleRunCode={handleRunCode} />
+    </div>
+  );
 }
