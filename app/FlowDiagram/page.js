@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { ReactFlow, useReactFlow } from "reactflow"; // Correct imports from reactflow
 import "reactflow/dist/style.css"; // Correct style import for reactflow
 import {
@@ -120,6 +120,19 @@ const performanceData = [
   { subject: "Professionalism", A: 65, fullMark: 150 },
 ];
 
+// Sample strengths and areas for improvement data
+const strengths = [
+  "Problem-solving skills are strong.",
+  "Good collaboration with team members.",
+  "Effective communication during presentations.",
+];
+
+const improvements = [
+  "Improve time management skills.",
+  "Enhance understanding of complex algorithms.",
+  "Work on reducing coding errors.",
+];
+
 function FlowDiagram() {
   const { fitView } = useReactFlow(); // Correctly use the hook within the provider
 
@@ -143,7 +156,7 @@ function FlowDiagram() {
   };
 
   return (
-    <Card className="w-full md:w-1/2 bg-gray-900 text-white overflow-hidden min-h-[300px]">
+    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-hidden min-h-[300px] ">
       <CardHeader className="p-4">
         <CardTitle>Learning Path</CardTitle>
       </CardHeader>
@@ -160,6 +173,36 @@ function FlowDiagram() {
   );
 }
 
+function StrengthsAndImprovements() {
+  return (
+    <Card className="flex-1 bg-gray-900 text-white overflow-scroll min-h-[200px]">
+      <CardHeader className="p-4">
+        <CardTitle>Strengths and Areas for Growth</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-row p-4">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Strengths</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            {strengths.map((strength, index) => (
+              <li key={index}>{strength}</li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold mt-4 mb-2">
+            Areas for Improvement
+          </h3>
+          <ul className="list-disc pl-5 space-y-1">
+            {improvements.map((improvement, index) => (
+              <li key={index}>{improvement}</li>
+            ))}
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
@@ -167,9 +210,34 @@ export default function Page() {
         Algorithm Learning Dashboard
       </h1>
       <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] gap-4">
+        {/* Left side: FlowDiagram */}
         <FlowDiagram />
-        <div className="w-full md:w-1/2 flex flex-col gap-4">
-          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[300px]">
+
+        {/* Right side: Strengths and Improvements, Overall Performance, Daily Algorithms */}
+        <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">
+          <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
+          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
+            <CardHeader className="p-4">
+              <CardTitle>Overall Performance</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 h-[calc(100%-4rem)]">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={performanceData}>
+                  <PolarGrid stroke="#444" />
+                  <PolarAngleAxis dataKey="subject" stroke="#E0E7FF" />
+                  <PolarRadiusAxis stroke="#E0E7FF" />
+                  <Radar
+                    name="Performance"
+                    dataKey="A"
+                    stroke="#6366F1"
+                    fill="#6366F1"
+                    fillOpacity={0.6}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
             <CardHeader className="p-4">
               <CardTitle>Daily Algorithms Completed</CardTitle>
             </CardHeader>
@@ -188,27 +256,6 @@ export default function Page() {
                   <Legend />
                   <Bar dataKey="algorithms" fill="#6366F1" />
                 </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[300px]">
-            <CardHeader className="p-4">
-              <CardTitle>Overall Performance</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 h-[calc(100%-4rem)]">
-              <ResponsiveContainer width="100%" height="100%">
-                <RadarChart data={performanceData}>
-                  <PolarGrid stroke="#444" />
-                  <PolarAngleAxis dataKey="subject" stroke="#E0E7FF" />
-                  <PolarRadiusAxis stroke="#E0E7FF" />
-                  <Radar
-                    name="Performance"
-                    dataKey="A"
-                    stroke="#6366F1"
-                    fill="#6366F1"
-                    fillOpacity={0.6}
-                  />
-                </RadarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
