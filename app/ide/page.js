@@ -11,7 +11,7 @@ export default function Page() {
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
 
   const [code, setCode] = useState(
-    "# Write your code here\n#Framework of thinking: \n#Plan\n#Match\n#Implement\n#Review\n#Evaluate\n"
+    "# Write your code here\n#Framework of thinking: \n#Plan\n#Match\n#Implement\n#Review\n#Evaluate\n\n"
   );
   const [problemName, setProblemName] = useState("");
   const [description, setDescription] = useState("");
@@ -59,6 +59,10 @@ export default function Page() {
       setConstraints(result.constraints);
       setTags(result.tags);
       setTestCases(result.testCases);
+      // Replace explicit \n with actual newlines
+      const starterCode = (result.function_starter || "").replace(/\\n/g, "\n");
+      const newCode = code + starterCode;
+      setCode(newCode);
     } catch (error) {
       console.error("Error loading algorithm: ", error);
     }
