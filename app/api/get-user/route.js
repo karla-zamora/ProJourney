@@ -24,6 +24,7 @@ function configureSupabaseClient(token) {
 }
 
 export async function POST(req) {
+  console.log("POST request to /api/get-user");
   try {
     // Extract the Firebase JWT form the request headers
     const authorization = req.headers.get("authorization"); // Always use lowercase
@@ -36,6 +37,7 @@ export async function POST(req) {
     }
 
     const token = authorization.split(" ")[1]; // Extract the token after 'Bearer '
+
     if (!token) {
       return NextResponse.json(
         { message: "Unauthorized: Invalid token format" },
@@ -49,32 +51,40 @@ export async function POST(req) {
     // Configure Supabase client to use the user's JWT for RLS
     configureSupabaseClient(token);
 
-    const { algorithmName } = await req.json(); // Use req.json() to parse body in Next.js API routes
-    console.log("Algorithm Name: ", algorithmName);
-    // Query the Algorithms table to select a single entry based on the algorithm name
-    const { data, error } = await supabase
-      .from("Algorithms")
+    const { uid } = await req.json(); // Use req.json() to parse body in Next.js API routes
+
+    // Query the Users table to select a single entry based on the user ID
+    const { data, error, status } = await supabase
+      .from("Users")
       .select("*")
-      .eq("question", algorithmName) // Filter by algorithm name
+      .eq("id", uid) // Filter by user ID
       .single(); // Ensure only one result is returned
 
     if (error) {
-      console.error("Error loading algorithm: ", error);
-      return NextResponse.json(
-        { error: "Error fetching algorithm" },
-        { status: 500 }
-      );
+      // Differentiate between user not found and actual errors
+      if (status === 406) {
+        // Supabase returns 406 for single() queries when no rows are found
+        console.log("User not found in the database");
+        return NextResponse.json(
+          { message: "User not found" },
+          { status: 404 }
+        );
+      } else {
+        // Other errors, such as database connectivity or permission issues
+        console.error("Supabase fetch error: ", error);
+        return NextResponse.json(
+          { message: "Error fetching user data", details: error.message },
+          { status: 500 }
+        );
+      }
     }
 
-    if (!data) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
+    // Return the user data if no errors occurred
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Error loading algorithm: ", error);
+    console.error("Unexpected server error: ", error);
     return NextResponse.json(
-      { error: "Failed to load algorithm" },
+      { message: "Unexpected error occurred", details: error.message },
       { status: 500 }
     );
   }
