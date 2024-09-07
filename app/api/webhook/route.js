@@ -23,7 +23,6 @@ export async function POST(req) {
 
   try {
     console.log("Processing webhook");
-    console.log("Getting Lemon Squeezy signature");
     // Retrieve the Lemon Squeezy signature from headers
     const signature = req.headers.get("X-Signature");
     const body = await req.text(); // Get the raw text body for verification
@@ -46,62 +45,124 @@ export async function POST(req) {
     const parsedBody = JSON.parse(body);
     console.log("Body: ", parsedBody);
 
-    const subscription_status = parsedBody.data.attributes.status;
-    const customer_id = parsedBody.data.attributes.customer_id;
-    const product_id = parsedBody.data.attributes.product_id;
-    const variant_id = parsedBody.data.attributes.variant_id;
+    // Determine the event type
+    const eventType = parsedBody.meta.event_name;
+
+    // Extract common fields
     const user_email = parsedBody.data.attributes.user_email;
 
-    // Check if the user exists in the in supabase postgres database
-    const { data, error, status } = await supabase
-      .from("Users")
-      .select("*")
-      .eq("email", user_email)
-      .single();
+    // Handle different event types and corresponding object structures
+    switch (eventType) {
+      case "subscription_created":
+        console.log("Handling subscription created event");
+        // Extract relevant fields for subscription creation
+        const { customer_id, product_id, variant_id } =
+          parsedBody.data.attributes;
 
-    if (error) {
-      // Differentiate between user not found and actual errors
-      if (status == 406) {
-        console.log("User not found in the database");
+        await supabase
+          .from("Users")
+          .update({
+            status: "active",
+            customer_id: customer_id,
+            product_id: product_id,
+            variant_id: variant_id,
+          })
+          .eq("email", user_email);
+        break;
+
+      case "subscription_payment_success":
+        console.log("Handling payment successful event");
+        // Update the user status to active on successful payment
+        await supabase
+          .from("Users")
+          .update({
+            status: "active",
+          })
+          .eq("email", user_email);
+        break;
+
+      case "subscription_payment_failed":
+        console.log("Handling payment failed event");
+        // Update the subscription status to reflect the payment failure
+        await supabase
+          .from("Users")
+          .update({
+            status: "payment_failed",
+          })
+          .eq("email", user_email);
+        // Consider notifying the user about the failed payment
+        break;
+
+      case "subscription_payment_recovered":
+        console.log("Handling payment recovered event");
+        // Restore access and update status after a recovered payment
+        await supabase
+          .from("Users")
+          .update({
+            status: "active", // Back to active after recovery
+          })
+          .eq("email", user_email);
+        break;
+
+      case "subscription_updated":
+        console.log("Handling subscription updated event");
+        // Reflect any updates to the subscription
+        const updatedFields = {
+          status: parsedBody.data.attributes.status,
+          product_id: parsedBody.data.attributes.product_id,
+          variant_id: parsedBody.data.attributes.variant_id,
+        };
+
+        const { data: updatedUser, error: updateError } = await supabase
+          .from("Users")
+          .update(updatedFields)
+          .eq("email", user_email);
+
+        if (updateError) {
+          console.error("Error updating subscription: ", updateError);
+          return NextResponse.json(
+            { message: "Error updating subscription data" },
+            { status: 500 }
+          );
+        }
+
+        console.log("User subscription updated successfully: ", user_email);
+        break;
+
+      case "subscription_cancelled":
+        console.log("Handling subscription cancelled event");
+        await supabase
+          .from("Users")
+          .update({
+            status: "cancelled",
+          })
+          .eq("email", user_email);
+        break;
+
+      case "subscription_expired":
+        console.log("Handling subscription expired event");
+        await supabase
+          .from("Users")
+          .update({
+            status: "expired",
+          })
+          .eq("email", user_email);
+        // Fully revoke access as the subscription has ended
+        break;
+
+      default:
+        console.log(`Unhandled event type: ${eventType}`);
         return NextResponse.json(
-          { message: "User not found" },
-          { status: 404 }
+          { message: "Event type not handled" },
+          { status: 200 }
         );
-      } else {
-        // Other errors, such as database connectivity or permission issues
-        console.error("Error fetching user: ", error);
-        return NextResponse.json(
-          { message: "Error fetching user" },
-          { status: 404 }
-        );
-      }
     }
 
-    console.log("User data: ", data);
-
-    // Update the user's subscription status, customer id, product id, and variant id in the database
-    const { data: updateData, error: updateError } = await supabase
-      .from("Users")
-      .update({
-        status: subscription_status,
-        customer_id: customer_id,
-        product_id: product_id,
-        variant_id: variant_id,
-      })
-      .eq("email", user_email);
-
-    // Check for errors during the update operation
-    if (updateError) {
-      console.error("Error updating user: ", updateError);
-      return NextResponse.json(
-        { message: "Error updating user" },
-        { status: 500 }
-      );
-    }
-    // log the updated user data
-    console.log("User updated successfully: ", updateData);
-    // Return a success response
-    return NextResponse.json({ message: "Webhook processed" });
+    // Return a success response for all handled cases
+    return NextResponse.json(
+      { message: "Webhook processed successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error during webhook processing: ", error);
     return NextResponse.json({ message: "Webhook error" }, { status: 500 });
