@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import Workspace from "./Workspace";
+import Navbar from "./components/NavBar";
 import { useState, useEffect } from "react";
 import MonacoEditorComponent from "@/components/MonacoEditorComponent";
 import { useAuth } from "../context/AuthContext";
@@ -127,7 +129,12 @@ export default function Page() {
 
   return (
     <>
-      {user ? (
+      <div>
+        <Navbar />
+        <hr className="w-full" />
+        <Workspace /> 
+      </div>
+      {/* {user ? (
         <button className="bg-sky-400" onClick={handleSignOut}>
           Sign Out
         </button>
@@ -193,7 +200,7 @@ export default function Page() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 }
