@@ -68,6 +68,8 @@ export async function POST(req) {
             variant_id: variant_id,
           })
           .eq("email", user_email);
+
+        console.log("User subscription created successfully: ", user_email);
         break;
 
       case "subscription_payment_success":
@@ -79,6 +81,8 @@ export async function POST(req) {
             status: "active",
           })
           .eq("email", user_email);
+
+        console.log("Payment successful for user: ", user_email);
         break;
 
       case "subscription_payment_failed":
@@ -91,6 +95,7 @@ export async function POST(req) {
           })
           .eq("email", user_email);
         // Consider notifying the user about the failed payment
+        console.log("Payment failed for user: ", user_email);
         break;
 
       case "subscription_payment_recovered":
@@ -102,6 +107,8 @@ export async function POST(req) {
             status: "active", // Back to active after recovery
           })
           .eq("email", user_email);
+
+        console.log("Payment recovered for user: ", user_email);
         break;
 
       case "subscription_updated":
@@ -137,6 +144,8 @@ export async function POST(req) {
             status: "cancelled",
           })
           .eq("email", user_email);
+
+        console.log("User subscription cancelled: ", user_email);
         break;
 
       case "subscription_expired":
@@ -148,6 +157,8 @@ export async function POST(req) {
           })
           .eq("email", user_email);
         // Fully revoke access as the subscription has ended
+
+        console.log("User subscription expired: ", user_email);
         break;
 
       default:
