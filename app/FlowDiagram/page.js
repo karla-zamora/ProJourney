@@ -51,15 +51,32 @@ const initialNodes = [
       boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
     },
   },
-  { id: "2", data: { label: "Array & String" }, position: { x: 100, y: 100 } },
-  { id: "3", data: { label: "Binary Search" }, position: { x: 400, y: 100 } },
+  // { id: "2", data: { label: "Array & String" }, position: { x: 100, y: 100 } },
+  {
+    id: "2",
+    data: { label: "Strings & Arrays", topics: ["String", "Array"] },
+    position: { x: 100, y: 100 },
+  },
+  {
+    id: "3",
+    data: { label: "Binary Search", topic: ["Binary Search"] },
+    position: { x: 400, y: 100 },
+  },
   {
     id: "4",
-    data: { label: "Dynamic Programming" },
+    data: { label: "Dynamic Programming", topic: ["Dynamic Programming"] },
     position: { x: 300, y: 250 },
   },
-  { id: "5", data: { label: "Two Pointers" }, position: { x: 50, y: 250 } },
-  { id: "6", data: { label: "Sliding Window" }, position: { x: 150, y: 300 } },
+  {
+    id: "5",
+    data: { label: "Two Pointers", topic: ["Two Pointers"] },
+    position: { x: 50, y: 250 },
+  },
+  {
+    id: "6",
+    data: { label: "Sliding Window", topic: ["Sliding Window"] },
+    position: { x: 150, y: 300 },
+  },
 ].map((node) => ({
   ...node,
   style: {
@@ -147,7 +164,7 @@ const improvements = [
   "Work on reducing coding errors.",
 ];
 
-function FlowDiagram() {
+function FlowDiagram({ problems }) {
   const { fitView } = useReactFlow();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -173,57 +190,60 @@ function FlowDiagram() {
     setSelectedNode(null);
   };
 
-  const problems = [
-    {
-      id: "1",
-      name: "Two Sum",
-      difficulty: "Easy",
-      tags: ["Array", "Hash Table"],
-      completed: true,
-      description:
-        "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-    },
-    {
-      id: "2",
-      name: "Add Two Numbers",
-      difficulty: "Medium",
-      tags: ["Linked List", "Math"],
-      completed: false,
-      description:
-        "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
-    },
-    {
-      id: "3",
-      name: "Longest Substring Without Repeating Characters",
-      difficulty: "Medium",
-      tags: ["Hash Table", "String", "Sliding Window"],
-      completed: false,
-      description:
-        "Given a string s, find the length of the longest substring without repeating characters.",
-    },
-    {
-      id: "4",
-      name: "Median of Two Sorted Arrays",
-      difficulty: "Hard",
-      tags: ["Array", "Binary Search", "Divide and Conquer"],
-      completed: false,
-      description:
-        "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
-    },
-    {
-      id: "5",
-      name: "Longest Palindromic Substring",
-      difficulty: "Medium",
-      tags: ["String", "Dynamic Programming"],
-      completed: true,
-      description:
-        "Given a string s, return the longest palindromic substring in s.",
-    },
-  ];
+  // const problems = [
+  //   {
+  //     id: "1",
+  //     name: "Two Sum",
+  //     difficulty: "Easy",
+  //     tags: ["Array", "Hash Table"],
+  //     completed: true,
+  //     description:
+  //       "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Add Two Numbers",
+  //     difficulty: "Medium",
+  //     tags: ["Linked List", "Math"],
+  //     completed: false,
+  //     description:
+  //       "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Longest Substring Without Repeating Characters",
+  //     difficulty: "Medium",
+  //     tags: ["Hash Table", "String", "Sliding Window"],
+  //     completed: false,
+  //     description:
+  //       "Given a string s, find the length of the longest substring without repeating characters.",
+  //   },
+  //   {
+  //     id: "4",
+  //     name: "Median of Two Sorted Arrays",
+  //     difficulty: "Hard",
+  //     tags: ["Array", "Binary Search", "Divide and Conquer"],
+  //     completed: false,
+  //     description:
+  //       "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
+  //   },
+  //   {
+  //     id: "5",
+  //     name: "Longest Palindromic Substring",
+  //     difficulty: "Medium",
+  //     tags: ["String", "Dynamic Programming"],
+  //     completed: true,
+  //     description:
+  //       "Given a string s, return the longest palindromic substring in s.",
+  //   },
+  // ];
 
-  // Filter problems based on the selected node's label
+  // Filter problems based on the selected node's topics
   const filteredProblems = problems.filter(
-    (problem) => selectedNode && problem.tags.includes(selectedNode.data.label)
+    (problem) =>
+      selectedNode &&
+      selectedNode.data.topics &&
+      selectedNode.data.topics.some((topic) => problem.tags.includes(topic))
   );
 
   return (
@@ -254,13 +274,7 @@ function FlowDiagram() {
                     <p>
                       <strong>Node ID:</strong> {selectedNode.id}
                     </p>
-                    <ProblemList
-                      problems={problems.filter(
-                        (problem) =>
-                          selectedNode &&
-                          problem.tags.includes(selectedNode.data.label)
-                      )}
-                    />
+                    <ProblemList problems={filteredProblems} />
                   </div>
                 ) : (
                   "No node selected."
@@ -314,6 +328,7 @@ function StrengthsAndImprovements() {
 export default function Page() {
   // Auth
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
+  const [algorithms, setAlgorithms] = useState([]);
 
   const handleGoogleSignIn = async (e) => {
     const provider = new GoogleAuthProvider();
@@ -339,6 +354,47 @@ export default function Page() {
     }
   }, [loading, user]);
 
+  const getAlgorithms = async () => {
+    const token = await user.getIdToken(); // Get the user's ID token
+    const response = await fetch("/api/get-algorithms", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Pass the ID token in the Authorization header
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Error fetching algorithms: ", response.statusText);
+      return;
+    }
+
+    const data = await response.json();
+    console.log("Algorithms: ", data.algorithms);
+
+    // Process the data and set the state
+    const processedData = [];
+
+    data.algorithms.map((algorithm, index) => {
+      processedData.push({
+        id: index,
+        name: algorithm.question,
+        difficulty: algorithm.difficulty,
+        tags: algorithm.tags,
+        completed: false,
+        description: algorithm.description,
+      });
+    });
+
+    setAlgorithms(processedData);
+  };
+  useEffect(() => {
+    if (!loading && user) {
+      console.log("User is signed in: ", user);
+      getAlgorithms();
+    }
+  }, [loading, user]);
+
   return (
     <div className="flex flex-col  min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
       <AppBar
@@ -352,7 +408,7 @@ export default function Page() {
         </h1>
         <div className="flex flex-col md:flex-row h-[calc(100vh-10.5rem)] gap-4">
           {/* Left side: FlowDiagram */}
-          <FlowDiagram />
+          <FlowDiagram problems={algorithms} />
 
           {/* Right side: Strengths and Improvements, Overall Performance, Daily Algorithms */}
           <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">

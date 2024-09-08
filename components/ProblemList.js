@@ -4,9 +4,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const difficultyColors = {
-  Easy: "bg-green-500",
-  Medium: "bg-yellow-500",
-  Hard: "bg-red-500",
+  easy: "bg-green-500",
+  medium: "bg-yellow-500",
+  hard: "bg-red-500",
 };
 
 const ProblemList = ({ problems }) => {
