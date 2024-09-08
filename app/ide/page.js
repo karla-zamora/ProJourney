@@ -165,7 +165,7 @@ export default function Page() {
         const currentOutput = (result.stdout || result.stderr || "No output");
         setOutput(val => [...val, currentOutput]);
         console.log("Output: \n", result.stdout || result.stderr || "No output");
-        console.log("output array: " + output)
+        //console.log("output array: " + output)
         runPassed.push(handleTestCases(index, result.stdout));
       } catch (error) {
         console.error("Error running code: ", error);
@@ -235,10 +235,6 @@ export default function Page() {
   return (
     <>
       <div>
-        <button onClick={() => {
-          setIsCodeRunning(!isCodeRunning);
-        }
-        }>test</button>
         <Navbar problemName={problemName} />
         <hr className="w-full" />
         <Workspace
