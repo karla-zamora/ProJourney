@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AppBar from "@/components/AppBar.js";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useAuth } from "@/app/context/AuthContext";
@@ -25,6 +25,16 @@ import {
   Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog"; // Import dialog components
+import ProblemList from "@/components/ProblemList";
+import { Button } from "@/components/ui/button";
 
 const initialNodes = [
   {
@@ -138,29 +148,86 @@ const improvements = [
 ];
 
 function FlowDiagram() {
-  const { fitView } = useReactFlow(); // Correctly use the hook within the provider
+  const { fitView } = useReactFlow();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
-      fitView({ padding: 0.2 }); // Adjust view on resize
+      fitView({ padding: 0.2 });
     };
 
-    // Call fitView initially on mount
     fitView({ padding: 0.2 });
-
-    // Attach resize listener
     window.addEventListener("resize", handleResize);
 
-    // Cleanup listener on component unmount
     return () => window.removeEventListener("resize", handleResize);
   }, [fitView]);
 
   const handleNodeClick = (event, node) => {
-    console.log("Clicked node:", node);
+    setSelectedNode(node);
+    setIsDialogOpen(true);
   };
 
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedNode(null);
+  };
+
+  const problems = [
+    {
+      id: "1",
+      name: "Two Sum",
+      difficulty: "Easy",
+      tags: ["Array", "Hash Table"],
+      completed: true,
+      description:
+        "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+    },
+    {
+      id: "2",
+      name: "Add Two Numbers",
+      difficulty: "Medium",
+      tags: ["Linked List", "Math"],
+      completed: false,
+      description:
+        "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
+    },
+    {
+      id: "3",
+      name: "Longest Substring Without Repeating Characters",
+      difficulty: "Medium",
+      tags: ["Hash Table", "String", "Sliding Window"],
+      completed: false,
+      description:
+        "Given a string s, find the length of the longest substring without repeating characters.",
+    },
+    {
+      id: "4",
+      name: "Median of Two Sorted Arrays",
+      difficulty: "Hard",
+      tags: ["Array", "Binary Search", "Divide and Conquer"],
+      completed: false,
+      description:
+        "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
+    },
+    {
+      id: "5",
+      name: "Longest Palindromic Substring",
+      difficulty: "Medium",
+      tags: ["String", "Dynamic Programming"],
+      completed: true,
+      description:
+        "Given a string s, return the longest palindromic substring in s.",
+    },
+  ];
+
+  // Filter problems based on the selected node's label
+  const filteredProblems = problems.filter(
+    (problem) => selectedNode && problem.tags.includes(selectedNode.data.label)
+  );
+
   return (
-    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto min-h-[300px] ">
+    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto min-h-[300px]">
       <CardHeader className="p-4">
         <CardTitle className="text-2xl">Learning Path</CardTitle>
       </CardHeader>
@@ -172,6 +239,41 @@ function FlowDiagram() {
           onNodeClick={handleNodeClick}
           style={{ width: "100%", height: "100%" }}
         />
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
+              <DialogTitle className="text-2xl font-bold text-indigo-400">
+                {selectedNode ? selectedNode.data.label : "Node Information"}
+              </DialogTitle>
+              <DialogDescription className="text-base text-gray-400">
+                {selectedNode ? (
+                  <div className="space-y-4">
+                    <p>
+                      <strong>Node Label:</strong> {selectedNode.data.label}
+                    </p>
+                    <p>
+                      <strong>Node ID:</strong> {selectedNode.id}
+                    </p>
+                    <ProblemList
+                      problems={problems.filter(
+                        (problem) =>
+                          selectedNode &&
+                          problem.tags.includes(selectedNode.data.label)
+                      )}
+                    />
+                  </div>
+                ) : (
+                  "No node selected."
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogClose asChild>
+              <Button className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700">
+                Close
+              </Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
