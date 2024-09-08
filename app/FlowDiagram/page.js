@@ -356,7 +356,7 @@ export default function Page() {
 
   const getAlgorithms = async () => {
     const token = await user.getIdToken(); // Get the user's ID token
-    const response = await fetch("/api/get-algorithms", {
+    const algorithmsResponse = await fetch("/api/get-algorithms", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -364,24 +364,56 @@ export default function Page() {
       },
     });
 
-    if (!response.ok) {
-      console.error("Error fetching algorithms: ", response.statusText);
+    if (!algorithmsResponse.ok) {
+      console.error(
+        "Error fetching algorithms: ",
+        algorithmsResponse.statusText
+      );
       return;
     }
 
-    const data = await response.json();
-    console.log("Algorithms: ", data.algorithms);
+    const userSubmissionsResponse = await fetch("/api/get-user-submissions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ uid: user.uid }),
+    });
+
+    if (!userSubmissionsResponse.ok) {
+      console.error(
+        "Error fetching user submissions: ",
+        userSubmissionsResponse.statusText
+      );
+      return;
+    }
+
+    const submissionData = await userSubmissionsResponse.json();
+
+    console.log("UserSubmissionResponse: ", submissionData);
+    console.log("Submission Data: ", submissionData.submissions);
+
+    const algorithmData = await algorithmsResponse.json();
+    console.log("AlgorithmsResponse: ", algorithmData);
+    console.log("Algorithm Data: ", algorithmData.algorithms);
 
     // Process the data and set the state
     const processedData = [];
 
-    data.algorithms.map((algorithm, index) => {
+    algorithmData.algorithms.map((algorithm, index) => {
+      // Check if the algorithm is completed by the user
+      const isCompleted = submissionData.submissions.some(
+        (submission) =>
+          submission.algorithm_id === algorithm.id && submission.passed === true
+      );
+
       processedData.push({
         id: index,
         name: algorithm.question,
         difficulty: algorithm.difficulty,
         tags: algorithm.tags,
-        completed: false,
+        completed: isCompleted,
         description: algorithm.description,
       });
     });

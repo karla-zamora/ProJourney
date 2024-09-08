@@ -20,8 +20,9 @@ function configureSupabaseClient(token) {
   supabase.auth.setSession({ access_token: token }); // Setting the session token
 }
 
-export async function GET(req) {
-  console.log("GET request to /api/get-algorithms");
+export async function POST(req) {
+  console.log("POST request to /api/get-user-submissions");
+
   try {
     // Extract the Firebase JWT form the request headers
     const authorization = req.headers.get("authorization");
@@ -50,31 +51,42 @@ export async function GET(req) {
     // Configure Supabase client to use the user's JWT for RLS
     configureSupabaseClient(token);
 
-    // Get all algorithms from the Algorithms table
-    const { data: algorithms, error } = await supabase
-      .from("Algorithms")
-      .select("*");
+    // Get all submission from the Submissions table for the user
+    const { uid } = await req.json();
+    console.log("User ID:", uid);
+    console.log("User ID:", decodedToken.uid);
+    const {
+      data: submissions,
+      error,
+      status,
+    } = await supabase.from("Submissions").select("*").eq("user_id", uid);
 
+    // Check if there was an error getting the submissions
     if (error) {
-      console.error("Error getting algorithms");
+      console.error("Error getting user submissions");
       return NextResponse.json(
-        { message: "Error getting algorithms" },
+        { message: "Error getting user submissions" },
         { status: 500 }
       );
     }
 
-    console.log("Algorithms:", algorithms);
-    console.log("Success getting algorithms");
-    // return NextResponse.json({message: "", algorithms });
-    // Send the algorithms as a response with a 200 status code and message
-    return NextResponse.json({
-      message: "Success getting algorithms",
-      algorithms,
-    });
+    // Check if the user has any submissions
+    // Check if submissions are empty
+    if (submissions.length === 0) {
+      console.log("No submissions found for user:", uid);
+      return NextResponse.json(
+        { message: "No submissions found for user", submissions: [] },
+        { status: 200 }
+      );
+    }
+
+    console.log("Submissions:", submissions);
+    console.log("Success getting user submissions");
+    return NextResponse.json({ submissions });
   } catch (error) {
-    console.error("Error getting algorithms");
+    console.error("Error getting user submissions");
     return NextResponse.json(
-      { message: "Error getting algorithms" },
+      { message: "Error getting user submissions" },
       { status: 500 }
     );
   }
