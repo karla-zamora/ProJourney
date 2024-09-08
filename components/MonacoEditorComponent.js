@@ -32,7 +32,7 @@ const pandaTheme = {
   },
 };
 
-// Your defined Atom Material Theme
+// Atom Material Theme
 const atomMaterialTheme = {
   base: "vs-dark",
   inherit: true,
