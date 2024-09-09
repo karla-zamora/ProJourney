@@ -1,7 +1,13 @@
 import React from "react";
 import { BsChevronUp } from "react-icons/bs";
 
-const EditorFooter = ({ setOutput, handleRunCode, setIsCodeRunning, isCodeRunning }) => {
+const EditorFooter = ({
+    setOutput,
+    handleRunCode,
+    setIsCodeRunning,
+    isCodeRunning,
+    generateText
+}) => {
     return (
         <div className="flex bg-dark-layer-1 absolute bottom-0 z-10 w-full">
             <div className="mx-5 my-[10px] flex justify-between w-full">
@@ -36,6 +42,7 @@ const EditorFooter = ({ setOutput, handleRunCode, setIsCodeRunning, isCodeRunnin
 
                     <button
                         className="px-3 py-1.5 font-medium items-center transition-all focus:outline-none inline-flex text-sm text-white bg-dark-green-s hover:bg-green-3 rounded-lg"
+                        onClick={generateText}
                     >
                         Submit
                     </button>
