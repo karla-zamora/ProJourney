@@ -64,13 +64,20 @@ const atomMaterialTheme = {
 export default function MonacoEditorComponent({
   code,
   setCode,
+  output,
+  setOutput,
   theme,
   onChange,
   testCases,
   handleRunCode,
+  passedCases,
+  handleTestCases,
+  isCodeRunning,
+  setIsCodeRunning,
 }) {
   const [language, setLanguage] = useState('python');
   const [selectedTestCase, setSelectedTestCase] = useState(0); // Default to first test case
+
 
   useEffect(() => {
     loader.init().then((monaco) => {
@@ -78,9 +85,14 @@ export default function MonacoEditorComponent({
     });
   }, []);
 
+
   const handleTestCaseClick = (index) => {
     setSelectedTestCase(index); // Set selected test case
   };
+
+  function getTestCaseColor(index) {
+    return passedCases[index] ? "green" : "white"
+  }
 
   return (
     <div className='flex flex-col bg-dark-layer-1 relative overflow-x-hidden overflow-y-hidden'>
@@ -113,13 +125,13 @@ export default function MonacoEditorComponent({
               {testCases.map((_, index) => (
                 <button
                   key={index}
-                  className={`font-medium transition-all focus:outline-none inline-flex hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap ${
-                    selectedTestCase === index ? 'bg-dark-fill-1 text-white' : 'bg-dark-fill-2 text-gray-300'
-                  }`}
+                  className={`font-medium transition-all focus:outline-none inline-flex hover:bg-dark-fill-2 relative rounded-lg px-4 py-1 cursor-pointer whitespace-nowrap ${selectedTestCase === index ? 'bg-dark-fill-1 text-white' : 'bg-dark-fill-2 text-gray-300'
+                    }`}
                   onClick={() => handleTestCaseClick(index)}
                   style={{
                     backgroundColor: selectedTestCase === index ? '#4a4b4d' : '#5a5b5c', // Both shades lighter
-                    color: selectedTestCase === index ? '#f0f0f0' : '#dcdcdc',
+                    //color: selectedTestCase === index ? '#f0f0f0' : '#dcdcdc',
+                    color: getTestCaseColor(index)
                   }}
                 >
                   Case {index + 1}
@@ -130,7 +142,7 @@ export default function MonacoEditorComponent({
             {/* Display selected test case details */}
             {testCases[selectedTestCase] && (
               <div className="font-semibold mt-4">
-                <p className="text-sm font-medium mt-4 text-white">Input:</p>
+                <p className="text-sm font-medium mt-2 text-white">Input:</p>
                 <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
                   {JSON.stringify(testCases[selectedTestCase].input, null, 2)}
                 </div>
@@ -138,13 +150,22 @@ export default function MonacoEditorComponent({
                 <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
                   {JSON.stringify(testCases[selectedTestCase].expectedOutput)}
                 </div>
+                <p className="text-sm font-medium mt-4 text-white">Current Output:</p>
+                <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
+                  {output[selectedTestCase]?.toLowerCase()}
+                </div>
+                <div className="pt-20"><br></br></div>
               </div>
             )}
           </div>
         </div>
       </Split>
 
-      <EditorFooter handleRunCode={handleRunCode} />
+      <EditorFooter
+        setOutput={setOutput}
+        handleRunCode={handleRunCode}
+        isCodeRunning={isCodeRunning}
+        setIsCodeRunning={setIsCodeRunning} />
     </div>
   );
 }
