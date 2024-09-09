@@ -74,6 +74,7 @@ export default function MonacoEditorComponent({
   handleTestCases,
   isCodeRunning,
   setIsCodeRunning,
+  generateText,
 }) {
   const [language, setLanguage] = useState('python');
   const [selectedTestCase, setSelectedTestCase] = useState(0); // Default to first test case
@@ -165,7 +166,8 @@ export default function MonacoEditorComponent({
         setOutput={setOutput}
         handleRunCode={handleRunCode}
         isCodeRunning={isCodeRunning}
-        setIsCodeRunning={setIsCodeRunning} />
+        setIsCodeRunning={setIsCodeRunning}
+        generateText={generateText} />
     </div>
   );
 }

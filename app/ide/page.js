@@ -260,6 +260,38 @@ export default function Page() {
     }
   }, [loading, user]);
 
+  // Gemini call
+  
+  //state variable for the user prompt
+  const [input, setInput] = useState('Print hello in french!')
+  //state variable for the ai response output
+  const [geminiOutput, setGeminiOutput] = useState('This is not a quote')
+
+  //function to send prompt to model
+  const generateText = async () => {
+    const prompt = "Problem description: " + JSON.stringify(description) + "Code submitted: " + JSON.stringify(code);
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({ body: prompt })
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setGeminiOutput(data.output);
+        console.log(data.output);
+      } else {
+        setGeminiOutput(data.error);
+      }
+
+    } catch (error) {
+      console.log("Post request error: %s", error);
+    }
+  }
+
   return (
     <>
       <div>
@@ -288,6 +320,7 @@ export default function Page() {
           handleTestCases={handleTestCases}
           isCodeRunning={isCodeRunning}
           setIsCodeRunning={setIsCodeRunning}
+          generateText={generateText}
         />
       </div>
     </>

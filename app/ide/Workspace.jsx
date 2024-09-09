@@ -27,6 +27,7 @@ const Workspace = ({
     handleTestCases,
     isCodeRunning,
     setIsCodeRunning,
+    generateText
 }) => {
     return (
         <Split class="split" minSize={0}>
@@ -38,7 +39,8 @@ const Workspace = ({
                 handleRunCode={handleRunCode} passedCases={passedCases}
                 handleTestCases={handleTestCases}
                 isCodeRunning={isCodeRunning}
-                setIsCodeRunning={setIsCodeRunning} />
+                setIsCodeRunning={setIsCodeRunning}
+                generateText={generateText} />
         </Split>
     )
 }
