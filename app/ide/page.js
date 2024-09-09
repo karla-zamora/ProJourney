@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
 import MonacoEditorComponent from "./components/MonacoCodeEditor";
@@ -17,10 +17,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import ReactMarkdown from "react-markdown"; // Import react-markdown
-import remarkGfm from "remark-gfm"; // Import for GitHub-flavored markdown support
 
-export default function Page() {
+// Child component that uses useSearchParams
+function PageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const problemNameFromUrl = searchParams.get("name");
@@ -132,6 +131,7 @@ export default function Page() {
       return "Invalid function definition";
     }
   }
+
   // Function to replace the "str" with each word from the test case
   function replaceStrWithWords(cleanFunction, wordsArray) {
     let wordIndex = 0;
@@ -271,58 +271,65 @@ export default function Page() {
   };
 
   return (
-    <>
-      <div>
-        <Navbar problemName={problemName} />
-        <hr className="w-full" />
-        <Workspace
-          name={problemName}
-          setName={setProblemName}
-          desc={description}
-          setDesc={setDescription}
-          examples={examples}
-          setExamples={setExamples}
-          output={output}
-          setOutput={setOutput}
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          tags={tags}
-          setTags={setTags}
-          constraints={constraints}
-          setConstraints={setConstraints}
-          code={code}
-          setCode={setCode}
-          testCases={testCases}
-          handleRunCode={handleRunCode} // Pass the handleRunCode function as a prop
-          passedCases={passedCases}
-          handleTestCases={handleTestCases}
-          isCodeRunning={isCodeRunning}
-          setIsCodeRunning={setIsCodeRunning}
-          generateText={generateText}
-        />
+    <div>
+      <Navbar problemName={problemName} />
+      <hr className="w-full" />
+      <Workspace
+        name={problemName}
+        setName={setProblemName}
+        desc={description}
+        setDesc={setDescription}
+        examples={examples}
+        setExamples={setExamples}
+        output={output}
+        setOutput={setOutput}
+        difficulty={difficulty}
+        setDifficulty={setDifficulty}
+        tags={tags}
+        setTags={setTags}
+        constraints={constraints}
+        setConstraints={setConstraints}
+        code={code}
+        setCode={setCode}
+        testCases={testCases}
+        handleRunCode={handleRunCode} // Pass the handleRunCode function as a prop
+        passedCases={passedCases}
+        handleTestCases={handleTestCases}
+        isCodeRunning={isCodeRunning}
+        setIsCodeRunning={setIsCodeRunning}
+        generateText={generateText}
+      />
 
-        {/* Dialog to display AI response */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
-            <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
-              <DialogTitle className="text-2xl font-bold text-indigo-400">
-                AI Generated Response
-              </DialogTitle>
-              <DialogDescription className="text-base text-gray-400">
-                {geminiOutput}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogClose asChild>
-              <Button
-                className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700"
-                onClick={handleAlgoSubmissionInsert}
-              >
-                Return to Flow Diagram
-              </Button>
-            </DialogClose>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </>
+      {/* Dialog to display AI response */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+          <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
+            <DialogTitle className="text-2xl font-bold text-indigo-400">
+              AI Generated Response
+            </DialogTitle>
+            <DialogDescription className="text-base text-gray-400">
+              {geminiOutput}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogClose asChild>
+            <Button
+              className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700"
+              onClick={handleAlgoSubmissionInsert}
+            >
+              Return to Flow Diagram
+            </Button>
+          </DialogClose>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+// Main Page component wrapped in Suspense
+export default function Page() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageContent />
+    </Suspense>
   );
 }
