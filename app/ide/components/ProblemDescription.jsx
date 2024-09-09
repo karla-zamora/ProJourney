@@ -36,11 +36,11 @@ const ProblemDescription = ({ name, setName, difficulty, setDifficulty, descript
 
             {/* Tags */}
             <div className="flex items-center mt-3 space-x-4">
-              {/* {tags.map((tag, index) => ( */}
+              {tags.map((tag, index) => (
                 <div key={1} className={`bg-white inline-block rounded-[5px] text-white bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize`}>
-                  tag
+                  {tag}
                 </div>
-              {/* ))} */}
+              ))}
             </div>
 
             {/* Problem Statement(paragraphs) */}

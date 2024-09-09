@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
-import { useState, useEffect } from "react";
 import MonacoEditorComponent from "./components/MonacoCodeEditor";
-import { useAuth } from "../context/AuthContext";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useAuth } from "../context/AuthContext";
 import { auth } from "@/firebase";
