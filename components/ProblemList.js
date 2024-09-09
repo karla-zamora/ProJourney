@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { useRouter } from "next/router";
 
 const difficultyColors = {
-  easy: "bg-green-500",
-  medium: "bg-yellow-500",
-  hard: "bg-red-500",
+  easy: "bg-olive text-olive",
+  medium: "bg-dark-yellow text-dark-yellow",
+  hard: " bg-dark-pink text-dark-pink",
 };
 
 const ProblemList = ({ problems, onProblemClick }) => {
@@ -45,7 +45,7 @@ const ProblemList = ({ problems, onProblemClick }) => {
                       <div className="flex items-center flex-wrap gap-3">
                         <Badge
                           className={`${
-                            difficultyColors[problem.difficulty]
+                            difficultyColors[problem.difficulty.toLowerCase()]
                           } text-white px-4 py-2 text-sm`}
                         >
                           {problem.difficulty}

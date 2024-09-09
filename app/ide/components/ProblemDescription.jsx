@@ -1,6 +1,12 @@
 import { BsCheck2Circle } from "react-icons/bs";
 
 const ProblemDescription = ({ name, setName, difficulty, setDifficulty, description, setDescription, examples, setExamples, constraints, setConstraints, tags, setTags }) => {
+  const problemDifficulty = difficulty.toLowerCase() === "easy"
+      ? "bg-olive text-olive"
+      : difficulty.toLowerCase() === "medium"
+      ? "bg-dark-yellow text-dark-yellow"
+      : "bg-dark-pink text-dark-pink"
+
   return (
     <div className="bg-dark-layer-1">
       {/* TAB */}
@@ -19,13 +25,22 @@ const ProblemDescription = ({ name, setName, difficulty, setDifficulty, descript
             </div>
             <div className="flex items-center mt-3">
               <div
-                className={`text-olive bg-olive inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}
+                className={`${problemDifficulty} inline-block rounded-[21px] bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize `}
               >
                 {difficulty}
               </div>
               <div className="rounded p-[3px] ml-4 text-lg transition-colors duration-200 text-green-s text-dark-green-s">
                 <BsCheck2Circle />
               </div>
+            </div>
+
+            {/* Tags */}
+            <div className="flex items-center mt-3 space-x-4">
+              {/* {tags.map((tag, index) => ( */}
+                <div key={1} className={`bg-white inline-block rounded-[5px] text-white bg-opacity-[.15] px-2.5 py-1 text-xs font-medium capitalize`}>
+                  tag
+                </div>
+              {/* ))} */}
             </div>
 
             {/* Problem Statement(paragraphs) */}

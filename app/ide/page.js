@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from "react";
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
+import { useState, useEffect } from "react";
+import MonacoEditorComponent from "./components/MonacoCodeEditor";
+import { useAuth } from "../context/AuthContext";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { useAuth } from "../context/AuthContext";
 import { auth } from "@/firebase";
@@ -27,7 +30,7 @@ export default function Page() {
   const [problemName, setProblemName] = useState(problemNameFromUrl || "");
   const { user, loading, setRedirect } = useAuth();
   const [code, setCode] = useState(
-    "# Write your code here\n#Framework of thinking: \n#Plan\n#Match\n#Implement\n#Review\n#Evaluate\n\n"
+    "# Write your code here\n#Framework of thinking (UMPIRE): \n#Understand\n#Match\n#Plan\n#Implement\n#Review\n#Evaluate\n\n"
   );
   const [description, setDescription] = useState("");
   const [examples, setExamples] = useState([]);

@@ -36,6 +36,7 @@ import {
 import ProblemList from "@/components/ProblemList";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import Roadmap from "../roadmap/roadmap";
 
 const initialNodes = [
   {
@@ -156,6 +157,7 @@ function FlowDiagram({ problems }) {
   const { fitView } = useReactFlow();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [flowOpen, setFlowOpen] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -178,6 +180,10 @@ function FlowDiagram({ problems }) {
     setSelectedNode(null);
   };
 
+  const toggleFlowOpen = () => {
+    setFlowOpen(!flowOpen);
+  };
+
   const filteredProblems = problems.filter(
     (problem) =>
       selectedNode &&
@@ -190,50 +196,62 @@ function FlowDiagram({ problems }) {
   };
 
   return (
-    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto min-h-[300px]">
-      <CardHeader className="p-4">
+    <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto border min-h-[300px] scrollbar-hide">
+      <CardHeader className="p-4 flex justify-between flex-row">
         <CardTitle className="text-2xl">Learning Path</CardTitle>
+        <button class="mr-2 mb-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded flex flex-row" onClick={toggleFlowOpen}>
+            {flowOpen ? "List View" : "Flow View"}
+        </button>
       </CardHeader>
       <CardContent className="p-0 h-[calc(100%-4rem)]">
-        <ReactFlow
-          nodes={initialNodes}
-          edges={initialEdges}
-          fitView
-          onNodeClick={handleNodeClick}
-          style={{ width: "100%", height: "100%" }}
-        />
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
-              <DialogTitle className="text-2xl font-bold text-indigo-400">
-                {selectedNode ? selectedNode.data.label : "Node Information"}
-              </DialogTitle>
-              <DialogDescription className="text-base text-gray-400">
-                {selectedNode ? (
-                  <div className="space-y-4">
-                    <p>
-                      <strong>Node Label:</strong> {selectedNode.data.label}
-                    </p>
-                    <p>
-                      <strong>Node ID:</strong> {selectedNode.id}
-                    </p>
-                    <ProblemList
-                      problems={filteredProblems}
-                      onProblemClick={navigateToIde}
-                    />
-                  </div>
-                ) : (
-                  "No node selected."
-                )}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogClose asChild>
-              <Button className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700">
-                Close
-              </Button>
-            </DialogClose>
-          </DialogContent>
-        </Dialog>
+        {flowOpen ?
+          (<>
+            <ReactFlow
+              nodes={initialNodes}
+              edges={initialEdges}
+              fitView
+              onNodeClick={handleNodeClick}
+              style={{ width: "100%", height: "100%" }}
+            />
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+                <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
+                  <DialogTitle className="text-2xl font-bold text-indigo-400">
+                    {selectedNode ? selectedNode.data.label : "Node Information"}
+                  </DialogTitle>
+                  <DialogDescription className="text-base text-gray-400">
+                    {selectedNode ? (
+                      <div className="space-y-4">
+                        <p>
+                          <strong>Node Label:</strong> {selectedNode.data.label}
+                        </p>
+                        <p>
+                          <strong>Node ID:</strong> {selectedNode.id}
+                        </p>
+                        <ProblemList
+                          problems={filteredProblems}
+                          onProblemClick={navigateToIde}
+                        />
+                      </div>
+                    ) : (
+                      "No node selected."
+                    )}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogClose asChild>
+                  <Button className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700">
+                    Close
+                  </Button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
+          </>
+          ) : (
+            <ProblemList 
+              problems={problems}
+              onProblemClick={navigateToIde}
+            />
+          )}
       </CardContent>
     </Card>
   );
@@ -241,7 +259,7 @@ function FlowDiagram({ problems }) {
 
 function StrengthsAndImprovements() {
   return (
-    <Card className="flex-1 bg-gray-900 text-white overflow-scroll min-h-[200px]">
+    <Card className="flex-1 bg-gray-900 border text-white scrollbar-hide overflow-scroll min-h-[200px]">
       <CardHeader className="p-4">
         <CardTitle className="text-xl">
           Strengths and Areas for Growth
@@ -441,7 +459,7 @@ export default function Page() {
   }, [loading, user]);
 
   return (
-    <div className="flex flex-col  min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">
       <AppBar
         user={user}
         setRedirect={setRedirect}
@@ -455,7 +473,7 @@ export default function Page() {
           <FlowDiagram problems={algorithms} />
           <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">
             <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
-            <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
+            <Card className="flex-1 bg-gray-900 border text-white overflow-hidden min-h-[200px]">
               <CardHeader className="p-4">
                 <CardTitle className="text-xl">Overall Performance</CardTitle>
               </CardHeader>
@@ -479,7 +497,7 @@ export default function Page() {
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-            <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
+            <Card className="flex-1 bg-gray-900 border text-white overflow-hidden min-h-[200px]">
               <CardHeader className="p-4">
                 <CardTitle className="text-xl">
                   Daily Algorithms Completed
