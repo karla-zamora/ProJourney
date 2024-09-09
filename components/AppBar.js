@@ -20,7 +20,7 @@ export default function AppBar({user, setRedirect, handleGoogleSignIn}) {
                 <div className='flex justify-between place-content-between'>
                     <a id="title" href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                         <Image src={projourney_logo} width={40} className="h-8 shadow-white" alt="ProJourney Logo" />
-                        <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">ProJourney</span>
+                        <span className="self-center text-2xl font-semibold whitespace-nowrap text-white">ProJourney</span>
                     </a>
                     <button
                         id="mobile-btn"

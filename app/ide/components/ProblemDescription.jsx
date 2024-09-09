@@ -1,11 +1,11 @@
 import { BsCheck2Circle } from "react-icons/bs";
 
 const ProblemDescription = ({ name, setName, difficulty, setDifficulty, description, setDescription, examples, setExamples, constraints, setConstraints, tags, setTags }) => {
-  const problemDifficulty = difficulty === "easy"
+  const problemDifficulty = difficulty.toLowerCase() === "easy"
       ? "bg-olive text-olive"
-      : difficulty === "medium"
+      : difficulty.toLowerCase() === "medium"
       ? "bg-dark-yellow text-dark-yellow"
-      : " bg-dark-pink text-dark-pink"
+      : "bg-dark-pink text-dark-pink"
 
   return (
     <div className="bg-dark-layer-1">
