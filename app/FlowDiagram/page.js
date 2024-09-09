@@ -143,13 +143,19 @@ const dailyData = [
   { day: "Sun", algorithms: 3 },
 ];
 
+// const performanceData = [
+//   { subject: "Problem Solving", A: 120, fullMark: 150 },
+//   { subject: "Communication", A: 98, fullMark: 150 },
+//   { subject: "Collaboration", A: 86, fullMark: 150 },
+//   { subject: "Coding", A: 99, fullMark: 150 },
+//   { subject: "Understanding", A: 85, fullMark: 150 },
+//   { subject: "Professionalism", A: 65, fullMark: 150 },
+// ];
+
 const performanceData = [
   { subject: "Problem Solving", A: 120, fullMark: 150 },
-  { subject: "Communication", A: 98, fullMark: 150 },
-  { subject: "Collaboration", A: 86, fullMark: 150 },
   { subject: "Coding", A: 99, fullMark: 150 },
   { subject: "Understanding", A: 85, fullMark: 150 },
-  { subject: "Professionalism", A: 65, fullMark: 150 },
 ];
 
 // Sample strengths and areas for improvement data
