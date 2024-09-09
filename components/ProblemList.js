@@ -12,7 +12,11 @@ const difficultyColors = {
 const ProblemList = ({ problems }) => {
   const handleProblemClick = (problem) => {
     // Log the clicked problem
-    console.log("Clicked problem:", problem);
+    console.log("Clicked problem basic data:", problem);
+    console.log("Clicked problem name: ", problem.name);
+
+    // Redirect to the ide page with the problem name
+    
   };
 
   return (

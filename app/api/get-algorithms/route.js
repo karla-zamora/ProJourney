@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { initializeApp, cert, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
+// Parse Firebase Admin SDK service account from environment variable
+const serviceAccount = JSON.parse(process.env.FIREBASE_ADMIN_SDK_KEY);
+
 // Initialize Firebase Admin SDK only if it hasn't been initialized yet
 if (!getApps().length) {
   initializeApp({
