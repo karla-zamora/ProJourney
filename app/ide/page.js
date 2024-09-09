@@ -309,24 +309,7 @@ export default function Page() {
                 AI Generated Response
               </DialogTitle>
               <DialogDescription className="text-base text-gray-400">
-                <ReactMarkdown
-                  children={geminiOutput}
-                  remarkPlugins={[remarkGfm]} // Enables GitHub-flavored Markdown
-                  components={{
-                    p: ({ node, ...props }) => (
-                      <p className="text-gray-200" {...props} />
-                    ),
-                    strong: ({ node, ...props }) => (
-                      <strong className="font-semibold text-white" {...props} />
-                    ),
-                    em: ({ node, ...props }) => (
-                      <em className="italic text-indigo-300" {...props} />
-                    ),
-                    li: ({ node, ...props }) => (
-                      <li className="list-disc list-inside" {...props} />
-                    ),
-                  }}
-                />
+                {geminiOutput}
               </DialogDescription>
             </DialogHeader>
             <DialogClose asChild>
