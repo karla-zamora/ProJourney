@@ -2,7 +2,7 @@
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
 import { useState, useEffect } from "react";
-import MonacoEditorComponent from "@/components/MonacoEditorComponent";
+import MonacoEditorComponent from "./components/MonacoCodeEditor";
 import { useAuth } from "../context/AuthContext";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import { auth } from "@/firebase";
@@ -11,7 +11,7 @@ export default function Page() {
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
 
   const [code, setCode] = useState(
-    "# Write your code here\n#Framework of thinking: \n#Plan\n#Match\n#Implement\n#Review\n#Evaluate\n\n"
+    "# Write your code here\n#Framework of thinking (UMPIRE): \n#Understand\n#Match\n#Plan\n#Implement\n#Review\n#Evaluate\n\n"
   );
   const [problemName, setProblemName] = useState("");
   const [description, setDescription] = useState("");
