@@ -199,13 +199,16 @@ function FlowDiagram({ problems }) {
     <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto border min-h-[300px] scrollbar-hide">
       <CardHeader className="p-4 flex justify-between flex-row">
         <CardTitle className="text-2xl">Learning Path</CardTitle>
-        <button class="mr-2 mb-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded flex flex-row" onClick={toggleFlowOpen}>
-            {flowOpen ? "List View" : "Flow View"}
+        <button
+          class="mr-2 mb-2 inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-4 rounded flex flex-row"
+          onClick={toggleFlowOpen}
+        >
+          {flowOpen ? "List View" : "Flow View"}
         </button>
       </CardHeader>
       <CardContent className="p-0 h-[calc(100%-4rem)]">
-        {flowOpen ?
-          (<>
+        {flowOpen ? (
+          <>
             <ReactFlow
               nodes={initialNodes}
               edges={initialEdges}
@@ -217,7 +220,9 @@ function FlowDiagram({ problems }) {
               <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
                 <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
                   <DialogTitle className="text-2xl font-bold text-indigo-400">
-                    {selectedNode ? selectedNode.data.label : "Node Information"}
+                    {selectedNode
+                      ? selectedNode.data.label
+                      : "Node Information"}
                   </DialogTitle>
                   <DialogDescription className="text-base text-gray-400">
                     {selectedNode ? (
@@ -246,12 +251,9 @@ function FlowDiagram({ problems }) {
               </DialogContent>
             </Dialog>
           </>
-          ) : (
-            <ProblemList 
-              problems={problems}
-              onProblemClick={navigateToIde}
-            />
-          )}
+        ) : (
+          <ProblemList problems={problems} onProblemClick={navigateToIde} />
+        )}
       </CardContent>
     </Card>
   );
@@ -427,8 +429,8 @@ export default function Page() {
     const weeklySubmissions = submissions.filter((submission) => {
       const submissionDate = new Date(submission.submitted_at);
       return (
-        submissionDate >= weekStart &&
-        submissionDate <= currentDate &&
+        // submissionDate >= weekStart &&
+        // submissionDate <= currentDate &&
         submission.user_id === user.uid
       );
     });
