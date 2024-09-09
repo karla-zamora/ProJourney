@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog"; // Import dialog components
 import ProblemList from "@/components/ProblemList";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 const initialNodes = [
   {
@@ -165,6 +166,7 @@ const improvements = [
 ];
 
 function FlowDiagram({ problems }) {
+  const router = useRouter();
   const { fitView } = useReactFlow();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
@@ -246,6 +248,11 @@ function FlowDiagram({ problems }) {
       selectedNode.data.topics.some((topic) => problem.tags.includes(topic))
   );
 
+  // Define a function to handle navigation
+  const navigateToIde = (problemName) => {
+    router.push(`/ide?name=${encodeURIComponent(problemName)}`);
+  };
+
   return (
     <Card className="w-full md:w-7/12 bg-gray-900 text-white overflow-auto min-h-[300px]">
       <CardHeader className="p-4">
@@ -274,7 +281,10 @@ function FlowDiagram({ problems }) {
                     <p>
                       <strong>Node ID:</strong> {selectedNode.id}
                     </p>
-                    <ProblemList problems={filteredProblems} />
+                    <ProblemList
+                      problems={filteredProblems}
+                      onProblemClick={navigateToIde}
+                    />
                   </div>
                 ) : (
                   "No node selected."

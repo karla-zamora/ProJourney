@@ -2,6 +2,7 @@ import React from "react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { useRouter } from "next/router";
 
 const difficultyColors = {
   easy: "bg-green-500",
@@ -9,14 +10,16 @@ const difficultyColors = {
   hard: "bg-red-500",
 };
 
-const ProblemList = ({ problems }) => {
+const ProblemList = ({ problems, onProblemClick }) => {
+  // const router = useRouter(); // Initialize the router
+
   const handleProblemClick = (problem) => {
     // Log the clicked problem
     console.log("Clicked problem basic data:", problem);
-    console.log("Clicked problem name: ", problem.name);
+    console.log("Clicked problem name:", problem.name);
 
-    // Redirect to the ide page with the problem name
-    
+    // Use the passed onProblemClick function to navigate
+    onProblemClick(problem.name);
   };
 
   return (
