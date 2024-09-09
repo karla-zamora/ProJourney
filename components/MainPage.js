@@ -2,6 +2,7 @@ import trad_dsa from "@/public/images/trad_dsa_d.png";
 import pro_dsa from "@/public/images/pro_dsa_d.png";
 import "@/styles/home.css"
 import Image from "next/image";
+import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from "./ui/button";
 import Link from "next/link";
@@ -58,9 +59,28 @@ export default function MainPage({ user, setRedirect, handleGoogleSignIn }) {
                         </CardContent>
                     </Card>
                 </div>
-                <Button asChild>
-                    <Link href="/waitlist">Get started</Link>
-                </Button>
+                <div>
+                    {user ? (
+                        <button
+                            onClick={() => {
+                                setRedirect("/FlowDiagram");
+                            }}
+                            className="px-6 py-2 bg-rose-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out"
+                        >
+                            <span className="inline-flex items-center">
+                                Visit Beta Dashboard
+                            </span>
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleGoogleSignIn}
+                            className="px-6 py-2 bg-rose-600 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300 ease-in-out"
+                        >
+                            Sign in to try our Beta!
+                        </button>
+                    )}
+
+                </div>
             </div>
 
 

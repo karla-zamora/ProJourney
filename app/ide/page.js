@@ -1,25 +1,37 @@
 "use client";
+import React, { useEffect, useState } from "react";
 import Workspace from "./Workspace";
 import Navbar from "./components/NavBar";
 import { useState, useEffect } from "react";
 import MonacoEditorComponent from "./components/MonacoCodeEditor";
 import { useAuth } from "../context/AuthContext";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { useAuth } from "../context/AuthContext";
 import { auth } from "@/firebase";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown"; // Import react-markdown
+import remarkGfm from "remark-gfm"; // Import for GitHub-flavored markdown support
 
 export default function Page() {
-  const searchParams = useSearchParams(); // Access URL search parameters
-  const problemNameFromUrl = searchParams.get("name"); // Retrieve the 'name' parameter from the URL
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const problemNameFromUrl = searchParams.get("name");
 
-  // Define problemName as a state variable using useState
-  const [problemName, setProblemName] = useState(problemNameFromUrl || ""); // Initialize with the URL parameter or an empty string
-
-  const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
+  const [problemName, setProblemName] = useState(problemNameFromUrl || "");
+  const { user, loading, setRedirect } = useAuth();
   const [code, setCode] = useState(
     "# Write your code here\n#Framework of thinking (UMPIRE): \n#Understand\n#Match\n#Plan\n#Implement\n#Review\n#Evaluate\n\n"
   );
-  // const [problemName, setProblemName] = useState("");
   const [description, setDescription] = useState("");
   const [examples, setExamples] = useState([]);
   const [output, setOutput] = useState([]);
@@ -31,6 +43,10 @@ export default function Page() {
   const [functionDef, setFunctionDef] = useState("");
   const [problemPassed, setProblemPassed] = useState(false);
   const [isCodeRunning, setIsCodeRunning] = useState(false);
+
+  // State for dialog visibility
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [geminiOutput, setGeminiOutput] = useState("This is not a quote");
 
   // Ensure loadAlgorithm is called only when the user is loaded and authenticated
   useEffect(() => {
@@ -45,27 +61,19 @@ export default function Page() {
     }
   }, [problemName, user, loading]);
 
-  const handleEditorChange = (value) => {
-    setCode(value);
-  };
-
   const loadAlgorithm = async (algorithmName) => {
     if (!user) {
       console.log("User not logged in");
       return;
     }
 
-    //const algorithmName = "Group anagrams from a list of strings";
-    // const algorithmName = "Check if two strings are anagrams";
-
     try {
-      const token = await user.getIdToken(); // Fetch the Firebase JWT from the authenticated user
-
+      const token = await user.getIdToken();
       const response = await fetch("/api/algorithms", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the JWT in the request headers
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ algorithmName }),
       });
@@ -75,19 +83,14 @@ export default function Page() {
       }
 
       const result = await response.json();
-      // console.log(result);
-      // setProblemName(result.question);
       setDescription(result.description);
       setExamples(result.examples);
       setDifficulty(result.difficulty);
       setConstraints(result.constraints);
       setTags(result.tags);
       setTestCases(result.testCases);
-      // Retrieve function name from function definition in db
-      //setFunctionDef(result.function_def.match(/^def\s+([a-zA-Z_][a-zA-Z0-9_]*)/)[1]);
       setFunctionDef(result.function_def);
       setPassedCases(result.testCases.map((tc) => false));
-      // Replace explicit \n with actual newlines
       const starterCode = (result.function_starter || "").replace(/\\n/g, "\n");
       const newCode = code + starterCode;
       setCode(newCode);
@@ -152,14 +155,22 @@ export default function Page() {
     });
   }
 
-  useEffect(() => {
-    if (isCodeRunning) {
-      console.log("code running");
-    }
-  }, [isCodeRunning]);
+  const handleTestCases = (index, currentOutput) => {
+    // Normalize the expected and actual outputs
+    const expectedOutput = testCases[index].expectedOutput
+      .toString()
+      .toLowerCase()
+      .replace(/\n/g, "");
+    const normalizedOutput = currentOutput
+      .toString()
+      .toLowerCase()
+      .replace(/\n/g, "");
+    return expectedOutput === normalizedOutput;
+  };
 
   const handleRunCode = async () => {
     console.log("handleRunCode called");
+    setIsCodeRunning(true);
     const runPassed = []; // Store passing test cases as they go
     for (const index in testCases) {
       const formattedCode =
@@ -183,82 +194,83 @@ export default function Page() {
         const result = await response.json();
         const currentOutput = result.stdout || result.stderr || "No output";
         setOutput((val) => [...val, currentOutput]);
-        console.log(
-          "Output: \n",
-          result.stdout || result.stderr || "No output"
-        );
-        //console.log("output array: " + output)
         runPassed.push(handleTestCases(index, result.stdout));
       } catch (error) {
         console.error("Error running code: ", error);
         setOutput("Error running code");
       }
     }
-    console.log("final runpassed: " + runPassed);
     setPassedCases(runPassed);
     setIsCodeRunning(false);
   };
 
-  const handleTestCases = (index, currentOutput) => {
-    // Normalize the expected and actual outputs
-    const expectedOutput = testCases[index].expectedOutput
-      .toString()
-      .toLowerCase()
-      .replace(/\n/g, "");
-    const normalizedOutput = currentOutput
-      .toString()
-      .toLowerCase()
-      .replace(/\n/g, "");
-    return expectedOutput === normalizedOutput;
-  };
-
-  useEffect(() => {
-    // if all test cases passed = problem passed
-    if (passedCases.every(Boolean)) {
-      setProblemPassed(true);
-      console.log("Problem passed");
-    }
-  }, [passedCases]);
-
-  const handleGoogleSignIn = async (e) => {
-    const provider = new GoogleAuthProvider();
+  const generateText = async () => {
+    const prompt =
+      "Problem description: " +
+      JSON.stringify(description) +
+      " Code submitted: " +
+      JSON.stringify(code);
     try {
-      // Set the desired redirect path before succesfully signing in, so when user state is updated, they will be redirected to the correct path
-      setRedirect("/ide");
-      // The AuthContext will automatically update because of the onAuthStateChanged listener
-      await signInWithPopup(auth, provider);
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+        },
+        body: JSON.stringify({ body: prompt }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setGeminiOutput(data.output);
+        setIsDialogOpen(true); // Open the dialog after generating text
+        console.log(data.output);
+      } else {
+        setGeminiOutput(data.error);
+        setIsDialogOpen(true); // Show error in dialog as well
+      }
     } catch (error) {
-      console.error("Error during sign-in: ", error);
-      // Optionally, handle errors such as showing an error message to the user
-      // reset the redirect path to default path if the sign-in fails
-      setRedirect(null);
+      console.log("Post request error: %s", error);
+      setGeminiOutput("An error occurred while generating the text.");
+      setIsDialogOpen(true); // Show error in dialog
     }
   };
 
-  const handleSignOut = async () => {
+  const handleAlgoSubmissionInsert = async () => {
     try {
-      // Set the redirect path to home before signing out, so when the user state is updated, they will be redirected to the correct path
-      setRedirect("/");
-      await signOut(auth);
+      const token = await user.getIdToken();
+      const response = await fetch("/api/submit-algorithm-pass", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          problemName,
+          passed: problemPassed,
+          geminiOutput: geminiOutput,
+          code_submission: code,
+          coding_score: 7,
+          problem_solving_score: 8,
+          understanding_score: 9,
+          strengths: "Good understanding of the problem",
+          needs_work: "Optimize the code",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Error inserting algo submission");
+        return;
+      }
+      navigateToFlowDiagram();
     } catch (error) {
-      console.error("Error during sign-out: ", error);
-      // If a user is not signed out successfully, reset the redirect path to default path
-      setRedirect(null);
+      console.error("Error inserting algo submission: ", error);
     }
   };
 
-  // useEffect(() => {
-  //   loadAlgorithm();
-  // }, [loading, user]);
-
-  useEffect(() => {
-    if (!loading && user) {
-      console.log("User is signed in ", user);
-    }
-    if (!loading && !user) {
-      console.log("User is signed out");
-    }
-  }, [loading, user]);
+  // Handler to navigate to /FlowDiagram route
+  const navigateToFlowDiagram = () => {
+    router.push("/FlowDiagram");
+  };
 
   return (
     <>
@@ -283,12 +295,52 @@ export default function Page() {
           code={code}
           setCode={setCode}
           testCases={testCases}
-          handleRunCode={handleRunCode}
+          handleRunCode={handleRunCode} // Pass the handleRunCode function as a prop
           passedCases={passedCases}
           handleTestCases={handleTestCases}
           isCodeRunning={isCodeRunning}
           setIsCodeRunning={setIsCodeRunning}
+          generateText={generateText}
         />
+
+        {/* Dialog to display AI response */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="bg-gray-800 text-white rounded-lg shadow-xl border border-gray-700 max-w-lg w-full p-6">
+            <DialogHeader className="border-b border-gray-700 pb-4 mb-4">
+              <DialogTitle className="text-2xl font-bold text-indigo-400">
+                AI Generated Response
+              </DialogTitle>
+              <DialogDescription className="text-base text-gray-400">
+                <ReactMarkdown
+                  children={geminiOutput}
+                  remarkPlugins={[remarkGfm]} // Enables GitHub-flavored Markdown
+                  components={{
+                    p: ({ node, ...props }) => (
+                      <p className="text-gray-200" {...props} />
+                    ),
+                    strong: ({ node, ...props }) => (
+                      <strong className="font-semibold text-white" {...props} />
+                    ),
+                    em: ({ node, ...props }) => (
+                      <em className="italic text-indigo-300" {...props} />
+                    ),
+                    li: ({ node, ...props }) => (
+                      <li className="list-disc list-inside" {...props} />
+                    ),
+                  }}
+                />
+              </DialogDescription>
+            </DialogHeader>
+            <DialogClose asChild>
+              <Button
+                className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700"
+                onClick={handleAlgoSubmissionInsert}
+              >
+                Return to Flow Diagram
+              </Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
