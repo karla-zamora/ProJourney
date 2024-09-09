@@ -133,23 +133,12 @@ const initialEdges = [
   },
 ];
 
-// const dailyData = [
-//   { day: "Mon", algorithms: 4 },
-//   { day: "Tue", algorithms: 3 },
-//   { day: "Wed", algorithms: 5 },
-//   { day: "Thu", algorithms: 2 },
-//   { day: "Fri", algorithms: 4 },
-//   { day: "Sat", algorithms: 6 },
-//   { day: "Sun", algorithms: 3 },
-// ];
-
 const performanceData = [
   { subject: "Problem Solving", A: 120, fullMark: 150 },
   { subject: "Coding", A: 99, fullMark: 150 },
   { subject: "Understanding", A: 85, fullMark: 150 },
 ];
 
-// Sample strengths and areas for improvement data
 const strengths = [
   "Problem-solving skills are strong.",
   "Good collaboration with team members.",
@@ -189,7 +178,6 @@ function FlowDiagram({ problems }) {
     setSelectedNode(null);
   };
 
-  // Filter problems based on the selected node's topics
   const filteredProblems = problems.filter(
     (problem) =>
       selectedNode &&
@@ -197,7 +185,6 @@ function FlowDiagram({ problems }) {
       selectedNode.data.topics.some((topic) => problem.tags.includes(topic))
   );
 
-  // Define a function to handle navigation
   const navigateToIde = (problemName) => {
     router.push(`/ide?name=${encodeURIComponent(problemName)}`);
   };
@@ -285,10 +272,9 @@ function StrengthsAndImprovements() {
 }
 
 export default function Page() {
-  // Auth
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
   const [algorithms, setAlgorithms] = useState([]);
-  // Daily data for the BarChart
+  const [algoSubmissions, setAlgoSubmissions] = useState([]);
   const [dailyData, setDailyData] = useState([
     { day: "Mon", algorithms: 0 },
     { day: "Tue", algorithms: 0 },
@@ -302,29 +288,114 @@ export default function Page() {
   const handleGoogleSignIn = async (e) => {
     const provider = new GoogleAuthProvider();
     try {
-      // Set the desired redirect path before succesfully signing in, so when user state is updated, they will be redirected to the correct path
       setRedirect("/dashboard");
-      // The AuthContext will automatically update because of the onAuthStateChanged listener
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error during sign-in: ", error);
-      // Optionally, handle errors such as showing an error message to the user
-      // reset the redirect path to default path if the sign-in fails
       setRedirect(null);
     }
   };
 
   useEffect(() => {
     if (!loading && user) {
-      console.log("User is signed in: ", user);
+      // console.log("User is signed in: ", user);
     }
     if (!loading && !user) {
-      console.log("User is signed out");
+      // console.log("User is signed out");
     }
   }, [loading, user]);
 
-  const loadWeeklyData = () => {
-    // Process algorithms to calculate the number of algorithms completed per day
+  const getAlgorithms = async () => {
+    try {
+      const token = await user.getIdToken();
+
+      const algorithmsResponse = await fetch("/api/get-algorithms", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!algorithmsResponse.ok) {
+        console.error(
+          "Error fetching algorithms: ",
+          algorithmsResponse.statusText
+        );
+        return;
+      }
+
+      const userSubmissionsResponse = await fetch("/api/get-user-submissions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ uid: user.uid }),
+      });
+
+      if (!userSubmissionsResponse.ok) {
+        console.error(
+          "Error fetching user submissions: ",
+          userSubmissionsResponse.statusText
+        );
+        return;
+      }
+
+      const submissionsResults = await userSubmissionsResponse.json();
+      const submissionData = submissionsResults.submissions;
+      // console.log("Fetched Submissions: ", submissionData);
+
+      if (!submissionData || submissionData.length === 0) {
+        // console.log("No submissions found for the current user.");
+      }
+
+      setAlgoSubmissions(submissionData);
+
+      const algorithmData = await algorithmsResponse.json();
+      // console.log("Fetched Algorithms: ", algorithmData.algorithms);
+
+      const processedData = algorithmData.algorithms.map((algorithm, index) => {
+        const isCompleted = submissionData.some(
+          (submission) => submission.algorithm_id === algorithm.id
+        );
+
+        return {
+          id: index,
+          name: algorithm.question,
+          difficulty: algorithm.difficulty,
+          tags: algorithm.tags,
+          completed: isCompleted,
+          description: algorithm.description,
+          inserted_at: algorithm.inserted_at,
+        };
+      });
+
+      // console.log("Setting algorithms: ", processedData);
+      setAlgorithms(processedData);
+      // console.log("Calling loadWeeklyData...");
+      loadWeeklyData(submissionData); // Pass submissionData to loadWeeklyData
+    } catch (error) {
+      console.error("Error during data fetching: ", error);
+    }
+  };
+
+  const loadWeeklyData = (submissions) => {
+    // console.log("Loading weekly data...");
+    // console.log("Algo Submissions: ", submissions);
+
+    if (!submissions || !submissions.length) {
+      // console.log("No submissions available.");
+      return;
+    }
+
+    const currentDate = new Date();
+    const currentDay = currentDate.getDay();
+    const weekStart = new Date(currentDate);
+    weekStart.setDate(
+      currentDate.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
+    );
+
     const updatedDailyData = [
       { day: "Mon", algorithms: 0 },
       { day: "Tue", algorithms: 0 },
@@ -335,97 +406,36 @@ export default function Page() {
       { day: "Sun", algorithms: 0 },
     ];
 
-    algorithms.forEach((algorithm) => {
-      // Using local time zone settings to determine the day of the week
-      const completedDate = new Date(algorithm.inserted_at);
-      const dayOfWeek = completedDate.toLocaleDateString(undefined, {
+    const weeklySubmissions = submissions.filter((submission) => {
+      const submissionDate = new Date(submission.submitted_at);
+      return (
+        submissionDate >= weekStart &&
+        submissionDate <= currentDate &&
+        submission.user_id === user.uid
+      );
+    });
+
+    // console.log("Weekly Submissions: ", weeklySubmissions);
+
+    weeklySubmissions.forEach((submission) => {
+      const submissionDate = new Date(submission.submitted_at);
+      const dayOfWeek = submissionDate.toLocaleDateString(undefined, {
         weekday: "short",
       });
 
-      // Find the corresponding day in updatedDailyData and increment the count
       const dayData = updatedDailyData.find((day) => day.day === dayOfWeek);
       if (dayData) {
         dayData.algorithms += 1;
       }
     });
 
-    console.log("Updated Daily Data: ", updatedDailyData);
-
+    // console.log("Updated Daily Data: ", updatedDailyData);
     setDailyData(updatedDailyData);
   };
 
-  const getAlgorithms = async () => {
-    const token = await user.getIdToken(); // Get the user's ID token
-    const algorithmsResponse = await fetch("/api/get-algorithms", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Pass the ID token in the Authorization header
-      },
-    });
-
-    if (!algorithmsResponse.ok) {
-      console.error(
-        "Error fetching algorithms: ",
-        algorithmsResponse.statusText
-      );
-      return;
-    }
-
-    const userSubmissionsResponse = await fetch("/api/get-user-submissions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ uid: user.uid }),
-    });
-
-    if (!userSubmissionsResponse.ok) {
-      console.error(
-        "Error fetching user submissions: ",
-        userSubmissionsResponse.statusText
-      );
-      return;
-    }
-
-    const submissionData = await userSubmissionsResponse.json();
-
-    console.log("UserSubmissionResponse: ", submissionData);
-    console.log("Submission Data: ", submissionData.submissions);
-
-    const algorithmData = await algorithmsResponse.json();
-    console.log("AlgorithmsResponse: ", algorithmData);
-    console.log("Algorithm Data: ", algorithmData.algorithms);
-
-    // Process the data and set the state
-    const processedData = [];
-
-    algorithmData.algorithms.map((algorithm, index) => {
-      // Check if the algorithm is completed by the user
-      const isCompleted = submissionData.submissions.some(
-        (submission) =>
-          submission.algorithm_id === algorithm.id && submission.passed === true
-      );
-
-      processedData.push({
-        id: index,
-        name: algorithm.question,
-        difficulty: algorithm.difficulty,
-        tags: algorithm.tags,
-        completed: isCompleted,
-        description: algorithm.description,
-        inserted_at: algorithm.inserted_at,
-      });
-    });
-
-    setAlgorithms(processedData);
-
-    loadWeeklyData();
-  };
   useEffect(() => {
     if (!loading && user) {
-      console.log("User is signed in: ", user);
+      // console.log("User is signed in: ", user);
       getAlgorithms();
     }
   }, [loading, user]);
@@ -442,10 +452,7 @@ export default function Page() {
           Algorithm Learning Dashboard
         </h1>
         <div className="flex flex-col md:flex-row h-[calc(100vh-10.5rem)] gap-4">
-          {/* Left side: FlowDiagram */}
           <FlowDiagram problems={algorithms} />
-
-          {/* Right side: Strengths and Improvements, Overall Performance, Daily Algorithms */}
           <div className="w-full md:w-5/12 flex flex-col gap-4 h-full">
             <StrengthsAndImprovements className="flex-1 min-h-[200px]" />
             <Card className="flex-1 bg-gray-900 text-white overflow-hidden min-h-[200px]">
@@ -457,7 +464,6 @@ export default function Page() {
                   <RadarChart data={performanceData}>
                     <PolarGrid stroke="#444" />
                     <PolarAngleAxis dataKey="subject" stroke="#E0E7FF" />
-                    {/* <PolarRadiusAxis stroke="#E0E7FF" /> */}
                     <Radar
                       name="Performance"
                       dataKey="A"

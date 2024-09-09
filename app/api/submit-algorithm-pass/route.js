@@ -49,6 +49,62 @@ export async function POST(req) {
 
     // Configure Supabase client to use the user's JWT for RLS
     configureSupabaseClient(token);
+
+    const {
+      problemName,
+      passed,
+      geminiOutput,
+      code_submission,
+      coding_score,
+      problem_solving_score,
+      understanding_score,
+      strengths,
+      needs_work,
+    } = await req.json(); // Use req.json() to parse body in Next.js API routes
+
+    // get algorithm id from problemName
+    const { data: algorithmData, error: algorithmError } = await supabase
+      .from("Algorithms")
+      .select("*")
+      .eq("question", problemName)
+      .single();
+
+    if (algorithmError) {
+      console.error("Error fetching algorithm", algorithmError);
+      return NextResponse.error({
+        status: 500,
+        body: "Internal Server Error",
+      });
+    }
+    const algorithm_id = algorithmData.id;
+    // Insert a new submission into the Submissions table
+    const { data, error } = await supabase.from("Submissions").insert([
+      {
+        user_id: decodedToken.uid,
+        agorithm_id: algorithm_id,
+        passed,
+        code_submission,
+        coding_score,
+        problem_solving_score,
+        understanding_score,
+        strengths,
+        needs_work,
+        submitted_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (error) {
+      console.error("Error submitting algorithm pass", error);
+      return NextResponse.error({
+        status: 500,
+        body: "Internal Server Error",
+      });
+    }
+
+    console.log("Successfully submitted algorithm pass");
+    return NextResponse.json({
+      message: "Successfully submitted algorithm pass",
+    });
   } catch (error) {
     console.error("Error in /api/submit-algorithm-pass", error);
     return NextResponse.error({

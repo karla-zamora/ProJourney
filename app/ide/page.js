@@ -232,6 +232,38 @@ export default function Page() {
     }
   };
 
+  const handleAlgoSubmissionInsert = async () => {
+    try {
+      const token = await user.getIdToken();
+      const response = await fetch("/api/submit-algorithm-pass", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          problemName,
+          passed: problemPassed,
+          geminiOutput: geminiOutput,
+          code_submission: code,
+          coding_score: 7,
+          problem_solving_score: 8,
+          understanding_score: 9,
+          strengths: "Good understanding of the problem",
+          needs_work: "Optimize the code",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Error inserting algo submission");
+        return;
+      }
+      navigateToFlowDiagram();
+    } catch (error) {
+      console.error("Error inserting algo submission: ", error);
+    }
+  };
+
   // Handler to navigate to /FlowDiagram route
   const navigateToFlowDiagram = () => {
     router.push("/FlowDiagram");
@@ -299,7 +331,7 @@ export default function Page() {
             <DialogClose asChild>
               <Button
                 className="mt-6 w-full bg-indigo-600 text-white hover:bg-indigo-700"
-                onClick={navigateToFlowDiagram}
+                onClick={handleAlgoSubmissionInsert}
               >
                 Return to Flow Diagram
               </Button>
