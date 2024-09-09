@@ -133,23 +133,14 @@ const initialEdges = [
   },
 ];
 
-const dailyData = [
-  { day: "Mon", algorithms: 4 },
-  { day: "Tue", algorithms: 3 },
-  { day: "Wed", algorithms: 5 },
-  { day: "Thu", algorithms: 2 },
-  { day: "Fri", algorithms: 4 },
-  { day: "Sat", algorithms: 6 },
-  { day: "Sun", algorithms: 3 },
-];
-
-// const performanceData = [
-//   { subject: "Problem Solving", A: 120, fullMark: 150 },
-//   { subject: "Communication", A: 98, fullMark: 150 },
-//   { subject: "Collaboration", A: 86, fullMark: 150 },
-//   { subject: "Coding", A: 99, fullMark: 150 },
-//   { subject: "Understanding", A: 85, fullMark: 150 },
-//   { subject: "Professionalism", A: 65, fullMark: 150 },
+// const dailyData = [
+//   { day: "Mon", algorithms: 4 },
+//   { day: "Tue", algorithms: 3 },
+//   { day: "Wed", algorithms: 5 },
+//   { day: "Thu", algorithms: 2 },
+//   { day: "Fri", algorithms: 4 },
+//   { day: "Sat", algorithms: 6 },
+//   { day: "Sun", algorithms: 3 },
 // ];
 
 const performanceData = [
@@ -197,54 +188,6 @@ function FlowDiagram({ problems }) {
     setIsDialogOpen(false);
     setSelectedNode(null);
   };
-
-  // const problems = [
-  //   {
-  //     id: "1",
-  //     name: "Two Sum",
-  //     difficulty: "Easy",
-  //     tags: ["Array", "Hash Table"],
-  //     completed: true,
-  //     description:
-  //       "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Add Two Numbers",
-  //     difficulty: "Medium",
-  //     tags: ["Linked List", "Math"],
-  //     completed: false,
-  //     description:
-  //       "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Longest Substring Without Repeating Characters",
-  //     difficulty: "Medium",
-  //     tags: ["Hash Table", "String", "Sliding Window"],
-  //     completed: false,
-  //     description:
-  //       "Given a string s, find the length of the longest substring without repeating characters.",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Median of Two Sorted Arrays",
-  //     difficulty: "Hard",
-  //     tags: ["Array", "Binary Search", "Divide and Conquer"],
-  //     completed: false,
-  //     description:
-  //       "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays.",
-  //   },
-  //   {
-  //     id: "5",
-  //     name: "Longest Palindromic Substring",
-  //     difficulty: "Medium",
-  //     tags: ["String", "Dynamic Programming"],
-  //     completed: true,
-  //     description:
-  //       "Given a string s, return the longest palindromic substring in s.",
-  //   },
-  // ];
 
   // Filter problems based on the selected node's topics
   const filteredProblems = problems.filter(
@@ -345,6 +288,16 @@ export default function Page() {
   // Auth
   const { user, loading, setRedirect } = useAuth(); // Use the context to access and loading state
   const [algorithms, setAlgorithms] = useState([]);
+  // Daily data for the BarChart
+  const [dailyData, setDailyData] = useState([
+    { day: "Mon", algorithms: 0 },
+    { day: "Tue", algorithms: 0 },
+    { day: "Wed", algorithms: 0 },
+    { day: "Thu", algorithms: 0 },
+    { day: "Fri", algorithms: 0 },
+    { day: "Sat", algorithms: 0 },
+    { day: "Sun", algorithms: 0 },
+  ]);
 
   const handleGoogleSignIn = async (e) => {
     const provider = new GoogleAuthProvider();
@@ -369,6 +322,37 @@ export default function Page() {
       console.log("User is signed out");
     }
   }, [loading, user]);
+
+  const loadWeeklyData = () => {
+    // Process algorithms to calculate the number of algorithms completed per day
+    const updatedDailyData = [
+      { day: "Mon", algorithms: 0 },
+      { day: "Tue", algorithms: 0 },
+      { day: "Wed", algorithms: 0 },
+      { day: "Thu", algorithms: 0 },
+      { day: "Fri", algorithms: 0 },
+      { day: "Sat", algorithms: 0 },
+      { day: "Sun", algorithms: 0 },
+    ];
+
+    algorithms.forEach((algorithm) => {
+      // Using local time zone settings to determine the day of the week
+      const completedDate = new Date(algorithm.inserted_at);
+      const dayOfWeek = completedDate.toLocaleDateString(undefined, {
+        weekday: "short",
+      });
+
+      // Find the corresponding day in updatedDailyData and increment the count
+      const dayData = updatedDailyData.find((day) => day.day === dayOfWeek);
+      if (dayData) {
+        dayData.algorithms += 1;
+      }
+    });
+
+    console.log("Updated Daily Data: ", updatedDailyData);
+
+    setDailyData(updatedDailyData);
+  };
 
   const getAlgorithms = async () => {
     const token = await user.getIdToken(); // Get the user's ID token
@@ -431,10 +415,13 @@ export default function Page() {
         tags: algorithm.tags,
         completed: isCompleted,
         description: algorithm.description,
+        inserted_at: algorithm.inserted_at,
       });
     });
 
     setAlgorithms(processedData);
+
+    loadWeeklyData();
   };
   useEffect(() => {
     if (!loading && user) {
