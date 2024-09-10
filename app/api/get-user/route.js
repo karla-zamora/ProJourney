@@ -76,3 +76,6 @@ export async function POST(req) {
     );
   }
 }
+
+// Disable static optimization for this route
+export const dynamic = "force-dynamic";
