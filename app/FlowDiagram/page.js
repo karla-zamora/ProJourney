@@ -38,81 +38,6 @@ export default function Page() {
     }
   };
 
-  const getAlgorithms = async () => {
-    try {
-      const token = await user.getIdToken();
-
-      const algorithmsResponse = await fetch("/api/get-algorithms", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!algorithmsResponse.ok) {
-        console.error(
-          "Error fetching algorithms: ",
-          algorithmsResponse.statusText
-        );
-        return;
-      }
-
-      const userSubmissionsResponse = await fetch("/api/get-user-submissions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ uid: user.uid }),
-      });
-
-      if (!userSubmissionsResponse.ok) {
-        console.error(
-          "Error fetching user submissions: ",
-          userSubmissionsResponse.statusText
-        );
-        return;
-      }
-
-      const submissionsResults = await userSubmissionsResponse.json();
-      const submissionData = submissionsResults.submissions;
-      // console.log("Fetched Submissions: ", submissionData);
-
-      if (!submissionData || submissionData.length === 0) {
-        // console.log("No submissions found for the current user.");
-      }
-
-      setAlgoSubmissions(submissionData);
-
-      const algorithmData = await algorithmsResponse.json();
-      // console.log("Fetched Algorithms: ", algorithmData.algorithms);
-
-      const processedData = algorithmData.algorithms.map((algorithm, index) => {
-        const isCompleted = submissionData.some(
-          (submission) => submission.algorithm_id === algorithm.id
-        );
-
-        return {
-          id: index,
-          name: algorithm.question,
-          difficulty: algorithm.difficulty,
-          tags: algorithm.tags,
-          completed: isCompleted,
-          description: algorithm.description,
-          inserted_at: algorithm.inserted_at,
-        };
-      });
-
-      // console.log("Setting algorithms: ", processedData);
-      setAlgorithms(processedData);
-      // console.log("Calling loadWeeklyData...");
-      loadWeeklyData(submissionData); // Pass submissionData to loadWeeklyData
-    } catch (error) {
-      console.error("Error during data fetching: ", error);
-    }
-  };
-
   const loadWeeklyData = (submissions) => {
     // console.log("Loading weekly data...");
     // console.log("Algo Submissions: ", submissions);
@@ -167,11 +92,98 @@ export default function Page() {
   };
 
   useEffect(() => {
+    const getAlgorithms = async () => {
+      if (!user) {
+        return;
+      }
+
+      try {
+        const token = await user.getIdToken();
+
+        const algorithmsResponse = await fetch("/api/get-algorithms", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!algorithmsResponse.ok) {
+          console.error(
+            "Error fetching algorithms: ",
+            algorithmsResponse.statusText
+          );
+          return;
+        }
+
+        const userSubmissionsResponse = await fetch(
+          "/api/get-user-submissions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ uid: user.uid }),
+          }
+        );
+
+        if (!userSubmissionsResponse.ok) {
+          console.error(
+            "Error fetching user submissions: ",
+            userSubmissionsResponse.statusText
+          );
+          return;
+        }
+
+        const submissionsResults = await userSubmissionsResponse.json();
+        const submissionData = submissionsResults.submissions;
+        // console.log("Fetched Submissions: ", submissionData);
+
+        if (!submissionData || submissionData.length === 0) {
+          // console.log("No submissions found for the current user.");
+        }
+
+        setAlgoSubmissions(submissionData);
+
+        const algorithmData = await algorithmsResponse.json();
+        // console.log("Fetched Algorithms: ", algorithmData.algorithms);
+
+        const processedData = algorithmData.algorithms.map(
+          (algorithm, index) => {
+            const isCompleted = submissionData.some(
+              (submission) => submission.algorithm_id === algorithm.id
+            );
+
+            return {
+              id: index,
+              name: algorithm.question,
+              difficulty: algorithm.difficulty,
+              tags: algorithm.tags,
+              completed: isCompleted,
+              description: algorithm.description,
+              inserted_at: algorithm.inserted_at,
+            };
+          }
+        );
+
+        // console.log("Setting algorithms: ", processedData);
+        setAlgorithms(processedData);
+        // console.log("Calling loadWeeklyData...");
+        loadWeeklyData(submissionData); // Pass submissionData to loadWeeklyData
+      } catch (error) {
+        console.error("Error during data fetching: ", error);
+      }
+    };
     if (!loading && user) {
       // console.log("User is signed in: ", user);
       getAlgorithms();
     }
   }, [loading, user]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-800 via-pink-700 to-blue-800 p-4 overflow-auto">

@@ -70,3 +70,6 @@ export async function GET(req) {
     );
   }
 }
+
+// Disable static optimization for this route
+export const dynamic = "force-dynamic";
